@@ -1,14 +1,14 @@
 <html>
   <head>
     <script src="http://jashkenas.github.com/coffee-script/extras/coffee-script.js"></script>
-    <script src="http://localhost:8080/socket.io/socket.io.js"></script>
+    <script src="http://localhost:4321/socket.io/socket.io.js"></script>
     <script type="text/coffeescript" src="Robot.coffee"></script>
   </head>
   <body>
     <script type="text/coffeescript">
       # Client-side code
 
-      party = io.connect 'http://localhost:8080'
+      party = io.connect 'http://localhost:4321'
 
       robots = []
 
