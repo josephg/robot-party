@@ -10,9 +10,13 @@ class Robot
 
 
   @receive: (msg) =>
-    robot.receive msg for robot in Robot.robots
+    robot.receive msg for robot in Robot.robots.slice() when !robot.dead
 
   @remove: (robot) ->
+    
+    robot.listeners = {}
+    robot.emit = ->
+    robot.dead = true
     idx = @robots.indexOf robot
     @robots.splice(idx, 1) if idx >= 0
 

@@ -4,17 +4,31 @@ robots = {}
 
 @transmit "redis HGETALL", "robots", ({type, data}) ->
   if type != "error"
-    robots[roboname] = new Robot(eval robocode) for own roboname, robocode of data
-    
+    try
+      robots[roboname] = new Robot(eval robocode) for own roboname, robocode of data
+    catch e
+      @transmit "error", robot: roboname, error: e    
+
 @listen "run robot", ({data: {name: roboname, code: robocode}}, reply) ->
 
-  robots[roboname].remove() if robots[roboname]
-
-  js = "(function(){" + coffeescript.compile(robocode, bare: true) + "})"
-  robots[roboname] = new Robot(eval js)
-
-  @transmit "redis HSET", key: "robots", field: roboname, value: js
+  try
+    js = "(function(){" + coffeescript.compile(robocode, bare: true) + "})"
+ 
+    robots[roboname].remove() if robots[roboname]
+    robots[roboname] = new Robot(eval js)
   
-  reply "robot added", name: roboname
+    @transmit "redis HSET", key: "robots", field: roboname, value: js
+  
+    reply "robot added", name: roboname
+  catch e
+    reply "error", e
+
+@listen "kill robot", ({data: {name}}, reply) ->
+    if robots[name]
+      robots[name].remove()
+      @transmit "redis HDEL", key: "robots", field: name, ({type, data}) ->
+        reply "robot killed", name: name if type != "error"
+    else
+      reply "error", {name, msg: "no such robot"}
 
 

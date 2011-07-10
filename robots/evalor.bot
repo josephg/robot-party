@@ -1,1 +1,5 @@
-@listen "evaluate", ({data}) -> @transmit "eval result", eval(data)
+@listen "eval", ({data}, reply) ->
+  try 
+    reply "eval result", eval(data)
+  catch e
+  	reply "error", e

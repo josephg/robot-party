@@ -1,0 +1,2 @@
+@listen "robohash", ({data}, reply) ->
+	@transmit "get url", url: "http://robohash.org/#{data}?size=50x50"
