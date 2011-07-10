@@ -116,7 +116,7 @@ body {
 
 			var socket = io.connect()
 			socket.on('message', function (data) {
-				win.message('', data)
+				win.message('', JSON.stringify(data))
 			})
 			$cmd = $('#cmd')
 			$cmd.focus()
