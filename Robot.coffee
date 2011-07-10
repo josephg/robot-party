@@ -2,13 +2,11 @@ class Robot
   @robots: []
   
   @setSocket: (socket) ->
-    socket.on 'tx', @receive
+    socket.on 'message', @receive
 
     @emit = (msg) ->
-      console.log "emitting", msg, "from", this
-      console.log "sending to robots:", Robot.robots
       robot.receive msg for robot in Robot.robots when robot isnt this
-      socket.emit msg
+      socket.json.send msg
 
 
   @receive: (msg) ->
@@ -29,18 +27,15 @@ class Robot
     code.apply this
 
   receive: (msg) ->
-    console.log "received", msg
     for own id, listener of @listeners
-      listener.call this, JSON.parse(msg)
+      listener.call this, msg
   
   listen: (matcher, fn) ->
     [fn, matcher] = [matcher] if not fn?
 
     @listeners[@listenerId] = (msg) ->
       {type} = msg
-      console.log "matching", msg, "against", matcher
       if !matcher or matcher == type or matcher(type)
-        console.log "matched"
         fn.call this, msg
               
       @listenerId++
@@ -49,7 +44,7 @@ class Robot
     delete @listeners[id]
       
   transmit: (data) ->
-    @emit JSON.stringify(data)
+    @emit data
 
   remove: ->
     Robot.remove this
