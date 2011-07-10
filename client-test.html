@@ -9,28 +9,33 @@
       # Client-side code
 
       party = io.connect 'http://localhost:8080'
-      party.on 'connect', -> party.emit 'tx', 'hi!'
 
       robots = []
-
-      party.on 'tx', (data) -> robot.receive(data) for robot in robots
 
       Robot.setSocket party
 
       awesomebot = new Robot ->
-        console.log("listen is", @listen)
+        @name = "awesomebot"
 
-        @listen "*", (data) ->
-            alert "got ", data
+        @message = ->
+          @transmit type: "hello", data: "world"
+
+        @listen (data) ->
+          console.log "awesomebot got", data
+          alert "got " + JSON.stringify(data)
           
-      robots.push awesomebot
-
-
       echobot = new Robot ->
-          @listen "*", (data) ->
-              @transmit data
+        @name = "echobot"
 
-      robots.push echobot
+        @listen (data) ->
+          console.log "got data!", JSON.stringify(data)
+          @transmit data
+
+      window.awesomebot = awesomebot
+
     </script>
+
+
+    <a href="#" onclick="awesomebot.message">Click here to send a message</a>
   </body>
 </html>
