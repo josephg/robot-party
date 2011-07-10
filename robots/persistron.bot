@@ -1,6 +1,8 @@
 redis = require 'redis'
 client = redis.createClient()
+
 client.select 2
+client.on 'connected', -> client.select 2
 
 acknowledge = (reply) -> (err) ->
 	if err

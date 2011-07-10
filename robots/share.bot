@@ -12,11 +12,18 @@ ratelimit = (time, fn) ->
 				timeout = null
 
 @listen 'watch', ({data:{docName, roboName}}, reply) =>
-	console.log docName
+	follow docName, roboName, -> reply 'ok'
+	@transmit 'redis HSET', {key:'sharebot', field:roboName, value:docName}
+
+follow = (docName, roboName, callback) =>
 	client.open docName, 'text', {host: 'localhost', port: 8000}, (doc, error) =>
-		reply 'ok'
+		callback() if callback?
 
 		send = ratelimit 2000, => @transmit 'run robot', {name:roboName, code:doc.snapshot}
 
 		send()
 		doc.on 'remoteop', send
+
+@transmit 'redis HGETALL', 'sharebot', ({type, data}) ->
+	return if type == 'error'
+	follow docName, roboName for roboName, docName of data
