@@ -173,7 +173,7 @@ body {
 						$cmd.val('');
 						historyPos = -1
 					}
-				} else if (!(e.metaKey || e.ctrlKey)) {
+				} else if (!(e.metaKey || e.ctrlKey || e.altKey)) {
 					var cmd = $cmd.val()
 					if (e.which == 38) {
 						// up arrow
