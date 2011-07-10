@@ -18,6 +18,8 @@ Robot = require './Robot'
 
 Robot.setSocket socket
 
+Robot::libraries = {coffeescript, Robot}
+
 for filename in argv._
 	robotext = fs.readFile "#{filename}", 'utf8', (err, code) ->
 		if err
