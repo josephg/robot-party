@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>foo</title>
+		<script src="http://localhost:8080/socket.io/socket.io.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
+		<style>
+html, body {
+	height: 100%;
+	font-family: monospace;
+}
+#main {
+	width: 100%;
+	height: 100%;
+	padding-bottom: 50px;
+	box-sizing: border-box;
+}
+#chat-container {
+	overflow-y: scroll;
+	width: 100%;
+	height: 100%;
+}
+#chat {
+	display: table;
+}
+body {
+	margin: 0; padding: 0;
+}
+.message {
+	display: table-row;
+}
+.message .source {
+	display: table-cell;
+	text-align: right;
+	padding: 0 10px;
+	border-right: 1px solid lightgray;
+	min-width: 125px;
+}
+.message .text {
+	display: table-cell;
+	padding: 0 10px;
+}
+
+#entry {
+	position: fixed;
+	bottom: 0;
+	height: 30px;
+	width: 100%;
+}
+#entry input {
+	width: 100%;
+	height: 100%;
+	border: 0;
+	outline-width: 0;
+	font-family: inherit;
+	font-size: inherit;
+	padding-left: 4px;
+}
+#status {
+	width: 100%;
+	height: 20px;
+	background-color: lightgray;
+	position: fixed;
+	bottom: 30px;
+}
+
+.longword { word-break: break-all; }			
+		</style>
+	</head>
+	<body>
+		<div id="main"></div>
+		<div id="entry"><div id="status"></div><input id="cmd" /></div>
+		<script>
+			Window = (function() {
+				function Window(name) {
+					this.name = name;
+					this.$container = $("<div id='chat-container'>");
+					this.$messages = $("<div id='chat'>");
+					this.$container.append(this.$messages);
+				}
+				Window.prototype.isScrolledDown = function() {
+					var scrollBottom;
+					scrollBottom = this.$container.scrollTop() + this.$container.height();
+					return scrollBottom === this.$container[0].scrollHeight;
+				};
+				Window.prototype.message = function(from, msg) {
+					var e, scroll;
+					scroll = this.isScrolledDown;
+					e = escapeHTML;
+					msg = (e(msg)).replace(/\S{40,}/, '<span class="longword">$&</span>');
+					this.$messages.append($("<div class='message'>\n	<div class='source'>" + (e(from)) + "</div>\n	<div class='text'>" + msg + "</div>\n</div>"));
+					if (scroll) {
+						return this.$container.scrollTop(this.$container[0].scrollHeight);
+					}
+				};
+				return Window;
+			})();
+			escapeHTML = function(html) {
+				var escaped;
+				escaped = {
+					'&': '&amp;',
+					'<': '&lt;',
+					'>': '&gt;',
+					'"': '&quot;'
+				};
+				return String(html).replace(/[&<>"]/g, function(chr) {
+					return escaped[chr];
+				});
+			};
+			
+
+
+			var win = new Window('sys')
+			$('#main').append(win.$container)
+
+			var socket = io.connect('http://localhost:8080')
+			socket.on('tx', function (data) {
+				win.message('', data)
+			})
+			$cmd = $('#cmd')
+			$cmd.focus()
+			$(window).keydown(function (e) {
+				if (!(e.metaKey || e.ctrlKey)) {
+					e.currentTarget = $cmd[0]
+					$cmd.focus()
+				}
+			})
+			$cmd.keydown(function (e) {
+				if (e.which == 13) {
+					var cmd = $cmd.val()
+					if (cmd.length > 0) {
+						try {
+							cmd = JSON.stringify(JSON.parse(cmd))
+							socket.emit('tx',cmd)
+							win.message('me', cmd)
+							$cmd.val('')
+						} catch (e) {
+							console.log(e.stack ? e.stack : e)
+						}
+					}
+				}
+			})
+		</script>
+	</body>
+</html>
