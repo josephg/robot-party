@@ -41,6 +41,12 @@ body {
 	display: table-cell;
 	padding: 0 10px;
 }
+.message.json .text {
+	color: blue;
+}
+.message.me .source {
+	background-color: #eaf2f5;
+}
 
 #entry {
 	position: fixed;
@@ -91,14 +97,22 @@ body {
 					return scrollBottom === this.$container[0].scrollHeight;
 				};
 				Window.prototype.message = function(from, msg) {
+					from = from || 'anonybot';
+					if (typeof(msg) == 'object') {
+						msg = JSON.stringify(msg);
+					}
 					var e, scroll;
 					scroll = this.isScrolledDown;
 					e = escapeHTML;
 					msg = (e(msg)).replace(/\S{40,}/, '<span class="longword">$&</span>');
-					this.$messages.append($("<div class='message'>\n	<div class='source'>" + (e(from)) + "</div>\n	<div class='text'>" + msg + "</div>\n</div>"));
+					
+					var element = $("<div class='message'><div class='source'>" + (e(from)) + "</div><div class='text'>" + msg + "</div></div>");
+					this.$messages.append(element);
 					if (scroll) {
-						return this.$container.scrollTop(this.$container[0].scrollHeight);
+						this.$container.scrollTop(this.$container[0].scrollHeight);
 					}
+
+					return element;
 				};
 				return Window;
 			})();
@@ -122,7 +136,7 @@ body {
 
 			var socket = io.connect()
 			socket.on('message', function (data) {
-				win.message('', JSON.stringify(data))
+				win.message(data.from, data.data);
 			})
 			var $cmd = $('#cmd'), $status = $('#status')
 			$cmd.focus()
@@ -136,17 +150,19 @@ body {
 				if (e.which == 13) {
 					var cmd = $cmd.val()
 					if (cmd.length > 0) {
+						var msgclass = 'plain'
 						try {
 							cmd = JSON.parse(cmd)
 							socket.json.send(cmd)
-							win.message('me', JSON.stringify(cmd))
-							$cmd.val('')
+							msgclass = 'json'
 						} catch (e) {
-							$status.text('invalid json')
-							$status.stop().css('color','red')
-							$status.animate({color:'black'},1500)
-							console.log(e.stack ? e.stack : e)
+							socket.json.send({from:"user",type:"chat",missive:cmd})
 						}
+
+						var element = win.message('me', cmd)
+						element.addClass('me')
+						element.addClass(msgclass)
+						$cmd.val('');
 					}
 				}
 			})
