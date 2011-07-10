@@ -35,10 +35,10 @@ class Robot
 
     @listeners[@listenerId] = (msg) ->
       {type} = msg
-      if !matcher or matcher == type or matcher(type)
+      if !matcher or matcher == type or matcher?(type)
         fn.call this, msg
               
-      @listenerId++
+    @listenerId++
   
   unlisten: (id) ->
     delete @listeners[id]
