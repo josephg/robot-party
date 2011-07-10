@@ -41,8 +41,11 @@ body {
 	display: table-cell;
 	padding: 0 10px;
 }
-.me {
+.message .json {
 	color: blue;
+}
+.me {
+	background-color: #F7CD25;
 }
 
 #entry {
@@ -93,8 +96,11 @@ body {
 					scrollBottom = this.$container.scrollTop() + this.$container.height();
 					return scrollBottom === this.$container[0].scrollHeight;
 				};
-				Window.prototype.message = function(from, msg) {
+				Window.prototype.message = function(from, msg, msgclass) {
 					from = from || 'anonybot';
+					if (!msgclass) {
+						msgclass = '';
+					}
 					if (typeof(msg) == 'object') {
 						msg = JSON.stringify(msg);
 					}
@@ -102,8 +108,8 @@ body {
 					scroll = this.isScrolledDown;
 					e = escapeHTML;
 					msg = (e(msg)).replace(/\S{40,}/, '<span class="longword">$&</span>');
-
-					var element = $("<div class='message'>\n	<div class='source'>" + (e(from)) + "</div>\n	<div class='text'>" + msg + "</div>\n</div>");
+					
+					var element = $("<div class='message'>\n	<div class='source'>" + (e(from)) + "</div>\n	<div class='text " + msgclass + "'>" + msg + "</div>\n</div>");
 					this.$messages.append(element);
 					if (scroll) {
 						this.$container.scrollTop(this.$container[0].scrollHeight);
@@ -147,22 +153,17 @@ body {
 				if (e.which == 13) {
 					var cmd = $cmd.val()
 					if (cmd.length > 0) {
+						msgclass = '';
 						try {
-							try {
-								cmd = JSON.parse(cmd);
-							} catch (e) {}
+							cmd = JSON.parse(cmd);
+							msgclass = 'json';
+						} catch (e) {}
 
-							socket.json.send({from:'user', data:cmd});
+						socket.json.send({from:'user', data:cmd});
 
-							var element = win.message('me', cmd);
-							element.addClass('me');
-							$cmd.val('');
-						} catch (e) {
-							$status.text('invalid json')
-							$status.stop().css('color','red')
-							$status.animate({color:'black'},1500)
-							console.log(e.stack ? e.stack : e)
-						}
+						var element = win.message('me', cmd, msgclass);
+						element.addClass('me');
+						$cmd.val('');
 					}
 				}
 			})
