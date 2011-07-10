@@ -46,6 +46,12 @@ keyName = (key) -> "ROBO" + JSON.stringify(key)
 	else
 		client.hset (keyName key), field, JSON.stringify(value), (acknowledge reply)
 
+@listen 'redis HDEL', ({data:{key, field}}, reply) ->
+	unless key? and field?
+		@transmit "error", "ERROR ERROR NEED KEY AND FIELD"
+	else
+		client.hdel (keyName key), field, (acknowledge reply)
+
 @listen 'redis HGETALL', ({data:key}, reply) ->
 	unless key?
 		@transmit "error", "ERROR ERROR NEED KEY"

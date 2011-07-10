@@ -1,10 +1,22 @@
 client = require('share').client
 
-@listen 'watch', ({data:{docName, roboName}}, reply) ->
-	console.log docName
-	client.open docName, 'text', {host: 'localhost', port: 8000}, (doc, error) ->
-		reply({type:'ok'})
+st = (timeout, fn) -> setTimeout fn, timeout
 
-		console.log doc.snapshot
-		doc.on 'remoteop', (op) ->
-			console.log op
+ratelimit = (time, fn) ->
+	timeout = null
+
+	(args...) ->
+		if timeout == null
+			timeout = st time, ->
+				fn.apply null, args
+				timeout = null
+
+@listen 'watch', ({data:{docName, roboName}}, reply) =>
+	console.log docName
+	client.open docName, 'text', {host: 'localhost', port: 8000}, (doc, error) =>
+		reply 'ok'
+
+		send = ratelimit 2000, => @transmit 'run robot', {name:roboName, code:doc.snapshot}
+
+		send()
+		doc.on 'remoteop', send
