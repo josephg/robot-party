@@ -1,4 +1,4 @@
-coffeescript = require 'coffee-script'
+{coffeescript, Robot} = @libraries
 #fs = require 'fs'
 
 robots = {}
@@ -13,11 +13,9 @@ robots = {}
 #        console.log "Couldn't load robots from robots.json"
 
 @listen "run robot", (msg) ->
-    {data: [roboname, robocode]} = msg
+    {data: {name: roboname, code: robocode}} = msg
     robofun = new Function(coffeescript.compile robocode, bare:true)
     robots[roboname] = new Robot(robofun)
+    @transmit type: "robot added", data: {name: roboname}
     
 #    fs.writeFile(__dirname + 'robots.json', JSON.stringify robots)
-
-@listen (data) ->
-    robot.receive(data) for own roboname, robot of robots
