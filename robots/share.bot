@@ -1,0 +1,10 @@
+client = require('share').client
+
+@listen 'watch', ({data:{docName, roboName}}, reply) ->
+	console.log docName
+	client.open docName, 'text', {host: 'localhost', port: 8000}, (doc, error) ->
+		reply({type:'ok'})
+
+		console.log doc.snapshot
+		doc.on 'remoteop', (op) ->
+			console.log op
