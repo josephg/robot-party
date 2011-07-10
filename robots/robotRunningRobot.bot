@@ -1,5 +1,4 @@
-{coffeescript, Robot} = @libraries
-#fs = require 'fs'
+coffeescript = require 'coffee-script'
 
 robots = {}
 
@@ -14,7 +13,8 @@ robots = {}
 
 @listen "run robot", (msg) ->
     {data: {name: roboname, code: robocode}} = msg
-    robofun = new Function(coffeescript.compile robocode, bare:true)
+    robofun = eval "(function(){" + coffeescript.compile(robocode, bare: true) + "})"
+    console.log "robofun", robofun
     robots[roboname] = new Robot(robofun)
     @transmit type: "robot added", data: {name: roboname}
     

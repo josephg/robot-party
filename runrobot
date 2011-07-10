@@ -15,8 +15,6 @@ Robot = require './Robot'
 
 Robot.setSocket socket
 
-Robot::libraries = {coffeescript, Robot}
-
 for filename in argv._
 	robotext = fs.readFile "#{filename}", 'utf8', (err, code) ->
 		if err
@@ -24,7 +22,9 @@ for filename in argv._
 			return
 
 		try
-			fn = new Function coffeescript.compile(code, bare:true)
+			js = coffeescript.compile code, bare: true
+			fn = eval "(function(){" + js + "});"
+
 			new Robot(fn)
 
 			console.log "Loaded #{filename}"
