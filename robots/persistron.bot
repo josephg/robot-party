@@ -1,6 +1,8 @@
 redis = require 'redis'
 client = redis.createClient()
+
 client.select 2
+client.on 'connected', -> client.select 2
 
 acknowledge = (reply) -> (err) ->
 	if err
@@ -45,6 +47,12 @@ keyName = (key) -> "ROBO" + JSON.stringify(key)
 		@transmit "error", "ERROR ERROR NEED KEY, FIELD AND VAL!"
 	else
 		client.hset (keyName key), field, JSON.stringify(value), (acknowledge reply)
+
+@listen 'redis HDEL', ({data:{key, field}}, reply) ->
+	unless key? and field?
+		@transmit "error", "ERROR ERROR NEED KEY AND FIELD"
+	else
+		client.hdel (keyName key), field, (acknowledge reply)
 
 @listen 'redis HGETALL', ({data:key}, reply) ->
 	unless key?
