@@ -41,6 +41,9 @@ body {
 	display: table-cell;
 	padding: 0 10px;
 }
+.me {
+	color: blue;
+}
 
 #entry {
 	position: fixed;
@@ -85,14 +88,22 @@ body {
 					return scrollBottom === this.$container[0].scrollHeight;
 				};
 				Window.prototype.message = function(from, msg) {
+					from = from || 'anonybot';
+					if (typeof(msg) == 'object') {
+						msg = JSON.stringify(msg);
+					}
 					var e, scroll;
 					scroll = this.isScrolledDown;
 					e = escapeHTML;
 					msg = (e(msg)).replace(/\S{40,}/, '<span class="longword">$&</span>');
-					this.$messages.append($("<div class='message'>\n	<div class='source'>" + (e(from)) + "</div>\n	<div class='text'>" + msg + "</div>\n</div>"));
+
+					var element = $("<div class='message'>\n	<div class='source'>" + (e(from)) + "</div>\n	<div class='text'>" + msg + "</div>\n</div>");
+					this.$messages.append(element);
 					if (scroll) {
-						return this.$container.scrollTop(this.$container[0].scrollHeight);
+						this.$container.scrollTop(this.$container[0].scrollHeight);
 					}
+
+					return element;
 				};
 				return Window;
 			})();
@@ -116,7 +127,7 @@ body {
 
 			var socket = io.connect()
 			socket.on('message', function (data) {
-				win.message('', JSON.stringify(data))
+				win.message(data.from, data.data);
 			})
 			$cmd = $('#cmd')
 			$cmd.focus()
@@ -131,10 +142,15 @@ body {
 					var cmd = $cmd.val()
 					if (cmd.length > 0) {
 						try {
-							cmd = JSON.parse(cmd)
-							socket.json.send(cmd)
-							win.message('me', JSON.stringify(cmd))
-							$cmd.val('')
+							try {
+								cmd = JSON.parse(cmd);
+							} catch (e) {}
+
+							socket.json.send({from:'user', data:cmd});
+
+							var element = win.message('me', cmd);
+							element.addClass('me');
+							$cmd.val('');
 						} catch (e) {
 							console.log(e.stack ? e.stack : e)
 						}
