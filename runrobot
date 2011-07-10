@@ -11,6 +11,9 @@ argv = require('optimist').
 io = require 'socket.io-client'
 socket = io.connect argv.h
 
+socket.on 'connect', ->
+	console.log 'Connected.'
+
 Robot = require './Robot'
 
 Robot.setSocket socket
