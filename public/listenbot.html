@@ -133,7 +133,7 @@ body {
 						try {
 							cmd = JSON.parse(cmd)
 							socket.json.send(cmd)
-							win.message('me', cmd)
+							win.message('me', JSON.stringify(cmd))
 							$cmd.val('')
 						} catch (e) {
 							console.log(e.stack ? e.stack : e)
