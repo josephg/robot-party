@@ -15,7 +15,7 @@ class Robot
             listener data
     
     listen: (matcher, fn) =>
-        @listeners[listenerId] = ->
+        @listeners[@listenerId] = ->
             {name, data} = msg
             if matcher is "*" or matcher == name or matcher(name)
                 fn(msg)
