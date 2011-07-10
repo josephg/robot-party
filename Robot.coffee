@@ -17,14 +17,14 @@ class Robot
     @robots.splice(idx, 1) if idx >= 0
 
   
-  constructor: (code) ->
+  constructor: (@code) ->
     @emit = Robot.emit
     @listeners = {}
     @listenerId = 0
 
     Robot.robots.push this
 
-    code.apply this
+    @code.apply this
 
   receive: (msg) ->
     msg.data ||= {}
@@ -37,9 +37,9 @@ class Robot
     @listeners[@listenerId] = (msg) ->
       {type} = msg
       if !matcher or matcher == type or matcher?(type)
-        replycb = (data, callback) =>
+        replycb = (type, data, callback) =>
           data.replyto = msg.id
-          @transmit data, callback
+          @transmit type, data, callback
 
         fn.call this, msg, replycb
               
@@ -52,16 +52,29 @@ class Robot
     chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-="
     (chars[Math.floor(Math.random() * chars.length)] for x in [0...length]).join('')
 
-  transmit: (data, callback) ->
-    data.id = @randomId()
+  reply: (replyid, type, data, callback) ->
+    msg = {type, data}
+    msg.id = @randomId()
+    msg.replyto = replyid
+    @sendMsg msg, callback
+
+  transmit: (type, data, callback) ->
+    msg = {type, data}
+    msg.id = @randomId()
+    @sendMsg msg, callback
+
+  sendMsg: (data, callback) ->
     @emit data
 
-    lid = @listenerId
+    if callback?
+      lid = @listenerId
 
-    @listeners[lid] = (msg) ->
-      if msg.replyto == data.id
-        callback.call this, msg
-        @unlisten lid
+      @listeners[lid] = (msg) ->
+        if msg.replyto == data.id
+          callback.call this, msg
+          @unlisten lid
+      
+      @listenerId++
         
   remove: ->
     Robot.remove this

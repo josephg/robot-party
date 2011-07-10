@@ -1,0 +1,12 @@
+http = require 'http'
+urllib = require 'url'
+
+@listen "get url", ({data: {url}}, reply) ->
+  p = urllib.parse url
+  options = {host: p.hostname, path: p.pathname, port: p.port}
+  data = []
+  http.get options, (res) ->
+    res.on 'data', (newdata) ->
+      data.push newdata.toString("utf8")
+    res.on 'end', ->
+      reply "url contents", data.join("")

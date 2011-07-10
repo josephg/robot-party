@@ -1,8 +1,17 @@
 coffeescript = require 'coffee-script'
 
+robots = {}
 
-@listen "run robot", ({data: {name: roboname, code: robocode}}) ->
+@transmit "redis HGETALL", "robots", ({type, data}) ->
+  if type != "error"
+    robots[roboname] = new Robot(eval robocode) for own roboname, robocode of data
+    
+@listen "run robot", ({data: {name: roboname, code: robocode}}, reply) ->
 
-  robofun = eval "(function(){" + coffeescript.compile(robocode, bare: true) + "})"
-  robots[roboname] = new Robot(robofun)
-  @transmit type: "robot added", data: {name: roboname}    
+  js = "(function(){" + coffeescript.compile(robocode, bare: true) + "})"
+
+  robots[roboname] = new Robot(eval js)
+
+  @transmit "redis HSET", key: "robots", field: roboname, value: js
+
+  reply "robot added", name: roboname
