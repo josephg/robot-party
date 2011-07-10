@@ -1,6 +1,5 @@
 coffeescript = require 'coffee-script'
-fs = require 'fs'
-robolib = require 'robolib'
+#fs = require 'fs'
 
 robots = {}
 
