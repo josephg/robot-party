@@ -28,4 +28,8 @@ class Robot
     transmit: (data) =>
         @emit 'tx', JSON.stringify(data)
 
-window.Robot = Robot if window
+if window?
+	window.Robot = Robot if window
+else
+	module.exports = Robot
+
