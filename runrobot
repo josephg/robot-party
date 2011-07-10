@@ -11,6 +11,8 @@ argv = require('optimist').
 io = require 'socket.io-client'
 socket = io.connect argv.h
 
+console.log argv._
+
 socket.on 'connect', ->
 	console.log 'Connected.'
 
@@ -19,21 +21,22 @@ Robot = require './Robot'
 Robot.setSocket socket
 
 for filename in argv._
-	robotext = fs.readFile "#{filename}", 'utf8', (err, code) ->
-		if err
-			console.error "Could not load robot #{filename} : #{err}"
-			return
+	do (filename) ->
+		robotext = fs.readFile "#{filename}", 'utf8', (err, code) ->
+			if err
+				console.error "Could not load robot #{filename} : #{err}"
+				return
 
-		try
-			js = coffeescript.compile code, bare: true
-			fn = eval "(function(){" + js + "});"
+			try
+				js = coffeescript.compile code, bare: true
+				fn = eval "(function(){" + js + "});"
 
-			new Robot(fn)
+				new Robot(fn)
 
-			console.log "Loaded #{filename}"
-		catch e
-			console.log "Could not run #{filename}: #{e}"
-			return
+				console.log "Loaded #{filename}"
+			catch e
+				console.log "Could not run #{filename}: #{e}"
+				return
 
 
 
