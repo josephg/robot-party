@@ -181,8 +181,8 @@ body {
 							_history.unshift(cmd)
 							historyPos = 0
 						}
-						historyPos = Math.min(historyPos+1, history.length-1)
-						$cmd.val(history[historyPos])
+						historyPos = Math.min(historyPos+1, _history.length-1)
+						$cmd.val(_history[historyPos])
 					} else if (e.which == 40) {
 						// down arrow
 						historyPos = Math.max(historyPos-1, -1)
