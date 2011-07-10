@@ -136,7 +136,11 @@ body {
 
 			var socket = io.connect()
 			socket.on('message', function (data) {
-				win.message(data.from, data.data);
+				if (data.type === 'chat') {
+					win.message(data.from, data.missive).addClass('plain')
+				} else {
+					win.message('->', JSON.stringify(data)).addClass('json')
+				}
 			})
 			var $cmd = $('#cmd'), $status = $('#status')
 			$cmd.focus()
