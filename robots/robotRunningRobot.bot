@@ -1,21 +1,8 @@
 coffeescript = require 'coffee-script'
 
-robots = {}
 
-#    try
-#        robotext = fs.readFileSync(__dirname + 'robots.json', 'utf8')
-#        throw "No robots" unless robotext
-#        robots = JSON.parse robotext
-#    
-#    catch
-#        #Oh well...
-#        console.log "Couldn't load robots from robots.json"
+@listen "run robot", ({data: {name: roboname, code: robocode}}) ->
 
-@listen "run robot", (msg) ->
-    {data: {name: roboname, code: robocode}} = msg
-    robofun = eval "(function(){" + coffeescript.compile(robocode, bare: true) + "})"
-    console.log "robofun", robofun
-    robots[roboname] = new Robot(robofun)
-    @transmit type: "robot added", data: {name: roboname}
-    
-#    fs.writeFile(__dirname + 'robots.json', JSON.stringify robots)
+  robofun = eval "(function(){" + coffeescript.compile(robocode, bare: true) + "})"
+  robots[roboname] = new Robot(robofun)
+  @transmit type: "robot added", data: {name: roboname}    

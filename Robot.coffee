@@ -27,6 +27,7 @@ class Robot
     code.apply this
 
   receive: (msg) ->
+    msg.data ||= {}
     for own id, listener of @listeners
       listener.call this, msg
   
@@ -36,16 +37,32 @@ class Robot
     @listeners[@listenerId] = (msg) ->
       {type} = msg
       if !matcher or matcher == type or matcher?(type)
-        fn.call this, msg
+        replycb = (data, callback) =>
+          data.replyto = msg.id
+          @transmit data, callback
+
+        fn.call this, msg, replycb
               
     @listenerId++
   
   unlisten: (id) ->
     delete @listeners[id]
       
-  transmit: (data) ->
+  randomId: (length = 10) ->
+    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-="
+    (chars[Math.floor(Math.random() * chars.length)] for x in [0...length]).join('')
+
+  transmit: (data, callback) ->
+    data.id = @randomId()
     @emit data
 
+    lid = @listenerId
+
+    @listeners[lid] = (msg) ->
+      if msg.replyto == data.id
+        callback.call this, msg
+        @unlisten lid
+        
   remove: ->
     Robot.remove this
 

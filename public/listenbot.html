@@ -130,7 +130,7 @@ body {
 			};
 			
 
-			var history = []
+			var _history = []
 			var historyPos = -1
 
 			var win = new Window('sys')
@@ -156,7 +156,7 @@ body {
 				if (e.which == 13) {
 					var cmd = $cmd.val()
 					if (cmd.length > 0) {
-						history.unshift(cmd)
+						_history.unshift(cmd)
 
 						var msgclass = 'plain'
 						try {
@@ -178,7 +178,7 @@ body {
 					if (e.which == 38) {
 						// up arrow
 						if (cmd.length > 0 && historyPos == -1) {
-							history.unshift(cmd)
+							_history.unshift(cmd)
 							historyPos = 0
 						}
 						historyPos = Math.min(historyPos+1, history.length-1)
@@ -189,7 +189,7 @@ body {
 						if (historyPos < 0) {
 							$cmd.val('')
 						} else {
-							$cmd.val(history[historyPos])
+							$cmd.val(_history[historyPos])
 						}
 					} else {
 						historyPos = -1
