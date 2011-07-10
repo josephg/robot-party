@@ -5,10 +5,8 @@
 	"main": "lib/index.js",
 	"dependencies": {
 		"socket.io": "~0.7.0",
-		"socket.io-client": "~0.7.0",
 		"coffee-script": "> 1.1.0",
-		"optimist": ">= 0.2.4",
-		"websocket-client": ">= 1.0.0"
+		"optimist": ">= 0.2.4"
 	},
 	"licenses": [{
 		"type": "BSD",
