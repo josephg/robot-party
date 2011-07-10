@@ -38,8 +38,7 @@ class Robot
       {type} = msg
       if !matcher or matcher == type or matcher?(type)
         replycb = (type, data, callback) =>
-          data.replyto = msg.id
-          @transmit type, data, callback
+          @reply msg.id, type, data, callback
 
         fn.call this, msg, replycb
               
