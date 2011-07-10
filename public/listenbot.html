@@ -130,6 +130,8 @@ body {
 			};
 			
 
+			var history = []
+			var historyPos = -1
 
 			var win = new Window('sys')
 			$('#main').append(win.$container)
@@ -154,6 +156,8 @@ body {
 				if (e.which == 13) {
 					var cmd = $cmd.val()
 					if (cmd.length > 0) {
+						history.unshift(cmd)
+
 						var msgclass = 'plain'
 						try {
 							cmd = JSON.parse(cmd)
@@ -167,6 +171,28 @@ body {
 						element.addClass('me')
 						element.addClass(msgclass)
 						$cmd.val('');
+						historyPos = -1
+					}
+				} else if (!(e.metaKey || e.ctrlKey)) {
+					var cmd = $cmd.val()
+					if (e.which == 38) {
+						// up arrow
+						if (cmd.length > 0 && historyPos == -1) {
+							history.unshift(cmd)
+							historyPos = 0
+						}
+						historyPos = Math.min(historyPos+1, history.length-1)
+						$cmd.val(history[historyPos])
+					} else if (e.which == 40) {
+						// down arrow
+						historyPos = Math.max(historyPos-1, -1)
+						if (historyPos < 0) {
+							$cmd.val('')
+						} else {
+							$cmd.val(history[historyPos])
+						}
+					} else {
+						historyPos = -1
 					}
 				}
 			})
