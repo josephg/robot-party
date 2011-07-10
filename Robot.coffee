@@ -9,8 +9,8 @@ class Robot
       socket.json.send msg
 
 
-  @receive: (msg) ->
-    robot.receive msg for robot in @robots
+  @receive: (msg) =>
+    robot.receive msg for robot in Robot.robots
 
   @remove: (robot) ->
     idx = @robots.indexOf robot
