@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <script src="http://jashkenas.github.com/coffee-script/extras/coffee-script.js"></script>
+    <script src="http://localhost:8080/socket.io/socket.io.js"></script>
+    <script type="text/coffeescript" src="Robot.coffee"></script>
+  </head>
+  <body>
+    <script type="text/coffeescript">
+      # Client-side code
+
+      party = io.connect 'http://localhost:8080'
+      party.on 'connect', -> party.emit 'tx', 'hi!'
+
+      robots = []
+
+      party.on 'tx', (data) -> robot.receive(data) for robot in robots
+
+      Robot.setSocket party
+
+      awesomebot = new Robot ->
+        console.log("listen is", listen)
+
+        @listen "*", (data) ->
+            alert "got ", data
+          
+      robots.push awesomebot
+
+
+      echobot = new Robot ->
+          @listen "*", (data) ->
+              @transmit data
+
+      robots.push echobot
+    </script>
+  </body>
+</html>
