@@ -8,10 +8,13 @@ robots = {}
     
 @listen "run robot", ({data: {name: roboname, code: robocode}}, reply) ->
 
-  js = "(function(){" + coffeescript.compile(robocode, bare: true) + "})"
+  robots[roboname].remove() if robots[roboname]
 
+  js = "(function(){" + coffeescript.compile(robocode, bare: true) + "})"
   robots[roboname] = new Robot(eval js)
 
   @transmit "redis HSET", key: "robots", field: roboname, value: js
-
+  
   reply "robot added", name: roboname
+
+

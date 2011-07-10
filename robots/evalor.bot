@@ -1,1 +1,1 @@
-@listen "evaluate", ({data:data}) -> @transmit type: "eval result", data: eval(data)
+@listen "evaluate", ({data}) -> @transmit "eval result", eval(data)
