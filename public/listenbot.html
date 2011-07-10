@@ -115,7 +115,7 @@ body {
 			$('#main').append(win.$container)
 
 			var socket = io.connect()
-			socket.on('tx', function (data) {
+			socket.on('message', function (data) {
 				win.message('', data)
 			})
 			$cmd = $('#cmd')
@@ -132,7 +132,7 @@ body {
 					if (cmd.length > 0) {
 						try {
 							cmd = JSON.stringify(JSON.parse(cmd))
-							socket.emit('tx',cmd)
+							socket.json.send(cmd)
 							win.message('me', cmd)
 							$cmd.val('')
 						} catch (e) {
