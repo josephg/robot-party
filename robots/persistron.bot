@@ -1,0 +1,23 @@
+redis = require 'redis'
+client = redis.createClient()
+client.select 2
+
+@listen 'set', ({data:{key, value}}, reply) ->
+	unless key? and value != undefined
+		@transmit type:"error", data:"ERROR ERROR NEED KEY AND VAL"
+	else
+		client.set "ROBO" + JSON.stringify(key), JSON.stringify(value), (err) =>
+			if err
+				reply {type:"error", data:err}
+			else
+				reply {type:"set done"}
+	
+@listen 'get', ({data:{key}}, reply) ->
+	unless key?
+		@transmit type:"error", data:"ERROR ERROR NEED KEY"
+	else
+		client.get "ROBO" + JSON.stringify(key), (err, value) =>
+			if err
+				reply {type:"error", data:err}
+			else
+				reply {type:"get done", data:JSON.parse(value)}
