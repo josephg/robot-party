@@ -131,7 +131,7 @@ body {
 					var cmd = $cmd.val()
 					if (cmd.length > 0) {
 						try {
-							cmd = JSON.stringify(JSON.parse(cmd))
+							cmd = JSON.parse(cmd)
 							socket.json.send(cmd)
 							win.message('me', cmd)
 							$cmd.val('')
