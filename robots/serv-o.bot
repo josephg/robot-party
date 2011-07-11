@@ -1,4 +1,9 @@
-io = require('socket.io').listen 4321
+#io = require('socket.io').listen 4321
+
+connect = require 'connect'
+app = connect connect.static(__dirname + '/public')
+io = require('socket.io').listen(app)
+app.listen 4321
 
 hub = new Hub
 

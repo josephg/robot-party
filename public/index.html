@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>foo</title>
-		<script src="http://localhost:4321/socket.io/socket.io.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
 		<style>
 html, body {
@@ -131,7 +131,7 @@ body {
 			var win = new Window('sys')
 			$('#main').append(win.$container)
 
-			var socket = io.connect('http://localhost:4321')
+			var socket = io.connect()
 			socket.on('message', function (data) {
 				if (data.type === 'chat') {
 					win.message(data.from, data.missive).addClass('plain')
