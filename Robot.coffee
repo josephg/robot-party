@@ -49,7 +49,7 @@ class Robot
     @sendRaw msg, callback
 
   sendRaw: (data, callback) ->
-    @emit data
+    @emit this, data
 
     if callback?
       lid = @listenerId
