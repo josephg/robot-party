@@ -1,0 +1,20 @@
+io = require('socket.io').listen 4321
+
+hub = new Hub
+
+me = this
+hub.add ->
+	@listen (msg) -> me.sendRaw msg
+	me.listen (msg) => @sendRaw msg
+
+io.sockets.on 'connection', (s) =>
+	@transmit 'robot connected', s.id
+
+	robot = hub.add ->
+		s.on 'message', (d) -> @sendRaw msg if message?
+		@listen (msg) -> s.json.emit msg
+
+	s.on 'disconnect', =>
+		hub.remove robot
+		@transmit 'robot disconnected', s.id
+		
