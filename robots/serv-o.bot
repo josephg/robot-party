@@ -3,7 +3,7 @@
 connect = require 'connect'
 app = connect connect.static(__dirname + '/public')
 io = require('socket.io').listen(app)
-io.configure -> io.set 'log level', 1
+io.set 'log level', 2
 app.listen 4321
 
 hub = new Hub
@@ -18,9 +18,7 @@ io.sockets.on 'connection', (s) =>
 
 	robot = hub.add ->
 		s.on 'message', (msg) => @sendRaw msg if msg?
-		@listen (msg) ->
-			console.log 'msg ', msg
-			s.json.send msg
+		@listen (msg) -> s.json.send msg
 
 	s.on 'disconnect', =>
 		hub.remove robot
