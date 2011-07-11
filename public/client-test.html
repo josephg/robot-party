@@ -3,6 +3,7 @@
     <script src="http://jashkenas.github.com/coffee-script/extras/coffee-script.js"></script>
     <script src="http://localhost:4321/socket.io/socket.io.js"></script>
     <script type="text/coffeescript" src="Robot.coffee"></script>
+    <script type="text/coffeescript" src="Hub.coffee"></script>
   </head>
   <body>
     <script type="text/coffeescript">
@@ -10,28 +11,16 @@
 
       party = io.connect 'http://localhost:4321'
 
-      robots = []
-
-      Robot.setSocket party
-
-      awesomebot = new Robot ->
-        @name = "awesomebot"
-
-        @message = ->
-          @transmit type: "hello", data: "world"
-
+      hub = new Hub
+      
+      hub.add ->
         @listen (data) ->
           console.log "awesomebot got", data
           alert "got " + JSON.stringify(data)
-          
-      echobot = new Robot ->
-        @name = "echobot"
 
-        @listen (data) ->
-          console.log "got data!", JSON.stringify(data)
-          @transmit data
-
-      window.awesomebot = awesomebot
+      hub.add ->
+        party.on 'message', (msg) -> @sendRaw msg if message?
+        @listen (msg) -> party.json.emit msg
 
     </script>
 
