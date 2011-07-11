@@ -1,5 +1,6 @@
 <html>
   <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
     <script src="http://jashkenas.github.com/coffee-script/extras/coffee-script.js"></script>
     <script src="http://localhost:4321/socket.io/socket.io.js"></script>
     <script type="text/coffeescript" src="Robot.coffee"></script>
@@ -16,15 +17,49 @@
       hub.add ->
         @listen (data) ->
           console.log "awesomebot got", data
-          alert "got " + JSON.stringify(data)
+
+      layoutron = hub.add ->
+        @defaults.local = true
+        $('body').append("<div id='mainarea' />")
+
+        @listen "want layout", ({data: {name}}, reply) ->
+          reply "layout", parent: '#mainarea'
+
+
+      inputbot = hub.add ->
+        @defaults.local = true
+
+        $cmd = $("<input id='cmd' />")
+        @transmit "want layout", {id: 'cmd', name: "input"}, ({data:{parent}}) ->
+          
+          $(parent).append $cmd
+          $cmd.keydown (ev) =>
+            @transmit "key sent", key: ev.which, ctrl: ev.ctrlKey, alt: ev.altKey, meta: ev.metaKey
+
+        @listen "get input", ({local, data}, reply) ->
+          reply "input value", $cmd.val()
+
+        @listen "set input", ({local, data}, reply) ->
+          $cmd.val(data)
+          reply "ok"
+
+      sendbot = hub.add ->
+        @defaults.local = true
+
+        @listen "key sent", ({data:{key}}, reply) ->
+          if key is 13
+            reply "get input", {}, ({data: value}, reply) ->
+              @transmit "chat", value, {local: false}
+              reply "set input", ""
+        
+
+
 
       hub.add ->
-        party.on 'message', (msg) -> @sendRaw msg if message?
-        @listen (msg) -> party.json.emit msg
+        party.on 'message', (msg) => @sendRaw msg if msg?
+        @listen (msg) -> party.json.send msg unless msg.local
 
     </script>
 
-
-    <a href="#" onclick="awesomebot.message">Click here to send a message</a>
   </body>
 </html>

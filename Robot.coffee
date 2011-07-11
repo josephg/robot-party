@@ -1,11 +1,12 @@
-coffeescript = require 'coffee-script' unless coffeescript?
+coffeescript = window?.CoffeeScript or require 'coffee-script'
 
 class Robot
   constructor: (@emit, @code) ->
     @listeners = {}
     @listenerId = 0
+    @defaults = {}
 
-    Hub = require './Hub' unless Hub?
+    Hub = window?.Hub or require './Hub'
 
     if typeof @code == 'string'
       @code = eval "(function(){" + coffeescript.compile(@code, bare: true) + "})" 
@@ -13,9 +14,16 @@ class Robot
     @code.apply this
 
   receive: (msg) ->
-    msg.data ||= {}
+    msg.data ?= {}
     for own id, listener of @listeners
       listener.call this, msg
+
+  makeReplyCB: (msg) ->
+    return (type, data, extradata, callback) =>
+      [callback, extradata] = [extradata] if typeof extradata is 'function'
+      replydata = @mergeData({replyto: msg.id}, extradata)
+
+      @transmit type, data, replydata, callback
   
   listen: (matcher, fn) ->
     [fn, matcher] = [matcher] if not fn?
@@ -23,10 +31,8 @@ class Robot
     @listeners[@listenerId] = (msg) ->
       {type} = msg
       if !matcher or matcher == type or matcher?(type)
-        replycb = (type, data, callback) =>
-          @reply msg.id, type, data, callback
 
-        fn.call this, msg, replycb
+        fn.call this, msg, @makeReplyCB(msg)
               
     @listenerId++
   
@@ -37,29 +43,33 @@ class Robot
     chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-="
     (chars[Math.floor(Math.random() * chars.length)] for x in [0...length]).join('')
 
-  reply: (replyid, type, data, callback) ->
-    msg = {type, data}
-    msg.id = @randomId()
-    msg.replyto = replyid
+  transmit: (type, data, extradata, callback) ->
+    [callback, extradata] = [extradata] if typeof extradata is 'function'
+    
+    msg = @mergeData @defaults, {type, data, id: @randomId()}, extradata
     @sendRaw msg, callback
 
-  transmit: (type, data, callback) ->
-    msg = {type, data}
-    msg.id = @randomId()
-    @sendRaw msg, callback
+  mergeData: (objs...) ->
+    data = {}
+    for obj in objs when typeof obj is 'object'
+      for own k, v of obj
+        data[k] = v
+    return data
+
 
   sendRaw: (data, callback) ->
-    @emit this, data
 
     if callback?
       lid = @listenerId
 
       @listeners[lid] = (msg) ->
         if msg.replyto == data.id
-          callback.call this, msg
+          callback.call this, msg, @makeReplyCB(msg)
           @unlisten lid
       
       @listenerId++
+
+    @emit this, data
         
   remove: ->
     @listeners = {}

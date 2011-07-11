@@ -1,4 +1,4 @@
-Robot = require './Robot' unless Robot?
+Robot = window?.Robot or require './Robot'
 
 
 class Hub
@@ -6,8 +6,10 @@ class Hub
     @robots = []
   
   emit: (source, msg) =>
-    #console.log "emitting", msg, "from", source, "to", @robots
-    robot.receive msg for robot in @robots.slice() when robot isnt source
+    window.setTimeout =>
+      #console.log "emitting", msg, "from", source, "to", @robots
+      robot.receive msg for robot in @robots.slice() when robot isnt source
+    ,0
 
   add: (robocode) ->
     robot = new Robot @emit, robocode
