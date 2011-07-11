@@ -5,7 +5,7 @@ class Hub
   constructor: ->
     @robots = []
   
-  emit: (source) ->
+  emit: (source) =>
     robot.receive msg for robot in @robots.slice() when robot isnt source
 
   add: (robocode) ->
