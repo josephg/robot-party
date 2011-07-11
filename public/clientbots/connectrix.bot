@@ -1,0 +1,3 @@
+party = io.connect 'http://localhost:4321'
+party.on 'message', (msg) => @sendRaw msg if msg?
+@listen (msg) -> party.json.send msg unless msg.local

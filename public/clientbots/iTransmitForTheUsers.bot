@@ -1,0 +1,6 @@
+@listen 'usercmd', ({data:val}, reply) ->
+  if match = val.match /^transmit\s+(.*)$/
+  	try
+  	  eval "this.transmit(#{match[1]});"
+  	catch e
+  	  reply "error", e, {local: true}

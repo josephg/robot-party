@@ -1,0 +1,19 @@
+@defaults.local = true
+name = undefined
+
+@listen "key sent", ({data:{key}}, reply) ->
+  if key is 13
+    reply "get input", {}, ({data: value}, reply) ->
+      if value[0] == '/'
+        #This should probably be somewhere else
+        if match = value.match /^\/nick\s+(.*)$/
+          oldname = name
+          name = match[1]
+          @transmit "user nickname", {oldname, name}, {local: false}
+
+        @transmit "user input", value
+        @transmit "usercmd", value.slice(1)
+      else
+        @transmit "user input", value
+        @transmit "chat", value, {local: false, from:name}
+      reply "set input", ""
