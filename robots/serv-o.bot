@@ -16,8 +16,10 @@ io.sockets.on 'connection', (s) =>
 	@transmit 'robot connected', s.id
 
 	robot = hub.add ->
-		s.on 'message', (d) -> @sendRaw msg if message?
-		@listen (msg) -> s.json.emit msg
+		s.on 'message', (msg) => @sendRaw msg if msg?
+		@listen (msg) ->
+			console.log 'msg ', msg
+			s.json.send msg
 
 	s.on 'disconnect', =>
 		hub.remove robot
