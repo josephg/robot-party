@@ -8,7 +8,6 @@ class Robot
     Hub = require './Hub' unless Hub?
 
     if typeof @code == 'string'
-      console.log "Robot is", Robot
       @code = eval "(function(){" + coffeescript.compile(@code, bare: true) + "})" 
 
     @code.apply this
