@@ -1,0 +1,10 @@
+io = require 'socket.io-client'
+
+@listen 'federate', ({data:host}, reply) =>
+	socket = io.connect host
+
+	socket.on 'error', (e) -> console.log 'federatron', e
+
+	socket.on 'connect', -> reply 'federated'
+	socket.on 'message', (msg) => @sendRaw msg
+	@listen (msg) -> socket.json.send msg
