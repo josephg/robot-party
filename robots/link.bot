@@ -1,0 +1,18 @@
+sockets = []
+@listen (msg, reply) =>
+  if msg.type? && msg.type == 'link'
+    if msg.data? && msg.data.url
+      socket = io.connect(msg.data.url)
+      sockets.push socket
+      socket.on 'message', (data) =>
+        @emit data
+      socket.on 'connect', ->
+        reply success: "linked to #{msg.data.url}"
+        socket.json.send {"type":"link established"}
+      socket.on 'error', (e) =>
+        @transmit "link error", e
+    else
+      reply error: "no url specified"
+  else
+    for s in sockets
+      s.json.send msg
