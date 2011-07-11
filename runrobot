@@ -17,8 +17,9 @@ socket.on 'connect', ->
 	console.log 'Connected.'
 
 Robot = require './Robot'
+Hub = require './Hub'
 
-Robot.setSocket socket
+hub = new Hub
 
 for filename in argv._
 	do (filename) ->
@@ -28,10 +29,7 @@ for filename in argv._
 				return
 
 			try
-				js = coffeescript.compile code, bare: true
-				fn = eval "(function(){" + js + "});"
-
-				new Robot(fn)
+				hub.add code
 
 				console.log "Loaded #{filename}"
 			catch e

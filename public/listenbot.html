@@ -102,7 +102,7 @@ body {
 						msg = JSON.stringify(msg);
 					}
 					var e, scroll;
-					scroll = this.isScrolledDown;
+					scroll = this.isScrolledDown();
 					e = escapeHTML;
 					msg = (e(msg)).replace(/\S{40,}/g, '<span class="longword">$&</span>');
 					
