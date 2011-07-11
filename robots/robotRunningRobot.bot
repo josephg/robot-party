@@ -1,34 +1,21 @@
-coffeescript = require 'coffee-script'
-
 robots = {}
 
-@transmit "redis HGETALL", "robots", ({type, data}) ->
-  if type != "error"
-    try
-      robots[roboname] = new Robot(eval robocode) for own roboname, robocode of data
-    catch e
-      @transmit "error", robot: roboname, error: e    
+hub = new Hub
 
 @listen "run robot", ({data: {name: roboname, code: robocode}}, reply) ->
-
   try
-    js = "(function(){" + coffeescript.compile(robocode, bare: true) + "})"
- 
-    robots[roboname].remove() if robots[roboname]
-    robots[roboname] = new Robot(eval js)
-  
-    @transmit "redis HSET", key: "robots", field: roboname, value: js
-  
+    hub.remove robot[roboname] if robot[roboname]?
+    robots[roboname] = hub.add robocode
+
     reply "robot added", name: roboname
   catch e
     reply "error", e
 
 @listen "kill robot", ({data: {name}}, reply) ->
-    if robots[name]
-      robots[name].remove()
-      @transmit "redis HDEL", key: "robots", field: name, ({type, data}) ->
-        reply "robot killed", name: name if type != "error"
-    else
-      reply "error", {name, msg: "no such robot"}
+  if robots[name]
+    hub.remove robot[roboname] if robot[roboname]?
+    reply "robot killed", name: name
+  else
+    reply "error", {name, msg: "no such robot"}
 
 

@@ -1,32 +1,12 @@
+coffeescript ||= require 'coffee-script'
+
 class Robot
-  @robots: []
-  
-  @setSocket: (socket) ->
-    socket.on 'message', @receive
-
-    @emit = (msg) ->
-      robot.receive msg for robot in Robot.robots when robot isnt this
-      socket.json.send msg
-
-
-  @receive: (msg) =>
-    robot.receive msg for robot in Robot.robots.slice() when !robot.dead
-
-  @remove: (robot) ->
-    
-    robot.listeners = {}
-    robot.emit = ->
-    robot.dead = true
-    idx = @robots.indexOf robot
-    @robots.splice(idx, 1) if idx >= 0
-
-  
-  constructor: (@code) ->
-    @emit = Robot.emit
+  constructor: (@emit, @code) ->
     @listeners = {}
     @listenerId = 0
 
-    Robot.robots.push this
+    if typeof @code == 'string'
+      @code = eval "(function(){" + coffeescript.compile(robocode, bare: true) + "})" 
 
     @code.apply this
 
@@ -59,14 +39,14 @@ class Robot
     msg = {type, data}
     msg.id = @randomId()
     msg.replyto = replyid
-    @sendMsg msg, callback
+    @sendRaw msg, callback
 
   transmit: (type, data, callback) ->
     msg = {type, data}
     msg.id = @randomId()
-    @sendMsg msg, callback
+    @sendRaw msg, callback
 
-  sendMsg: (data, callback) ->
+  sendRaw: (data, callback) ->
     @emit data
 
     if callback?
@@ -80,7 +60,8 @@ class Robot
       @listenerId++
         
   remove: ->
-    Robot.remove this
+    @listeners = {}
+    @emit = ->
 
 if window?
 	window.Robot = Robot if window
