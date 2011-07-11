@@ -17,5 +17,3 @@ hub = new Hub
     reply "robot killed", name: name
   else
     reply "error", {name, msg: "no such robot"}
-
-

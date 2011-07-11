@@ -1,3 +1,6 @@
+Robot = require './Robot' unless Robot?
+
+
 class Hub
   constructor: ->
     @robots = []
@@ -7,8 +10,8 @@ class Hub
 
   add: (robocode) ->
     robot = new Robot @emit, robocode
-    @robots.
-    return 
+    @robots.push robot
+    return robot
 
   remove: (robot) ->
     robot.remove()

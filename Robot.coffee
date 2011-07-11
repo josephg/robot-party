@@ -1,12 +1,15 @@
-coffeescript ||= require 'coffee-script'
+coffeescript = require 'coffee-script' unless coffeescript?
 
 class Robot
   constructor: (@emit, @code) ->
     @listeners = {}
     @listenerId = 0
 
+    Hub = require './Hub' unless Hub?
+
     if typeof @code == 'string'
-      @code = eval "(function(){" + coffeescript.compile(robocode, bare: true) + "})" 
+      console.log "Robot is", Robot
+      @code = eval "(function(){" + coffeescript.compile(@code, bare: true) + "})" 
 
     @code.apply this
 
@@ -67,4 +70,3 @@ if window?
 	window.Robot = Robot if window
 else
 	module.exports = Robot
-
