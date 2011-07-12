@@ -1,12 +1,11 @@
 Robot = window?.Robot or require './Robot'
 
-
 class Hub
   constructor: ->
     @robots = []
   
   emit: (source, msg) =>
-    window.setTimeout =>
+    setTimeout =>
       #console.log "emitting", msg, "from", source, "to", @robots
       robot.receive msg for robot in @robots.slice() when robot isnt source
     ,0
