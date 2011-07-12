@@ -21,7 +21,7 @@ class Robot
   makeReplyCB: (msg) ->
     return (type, data, extradata, callback) =>
       [callback, extradata] = [extradata] if typeof extradata is 'function'
-      replydata = @mergeData({replyto: msg.id}, extradata)
+      replydata = @mergeData({re: msg.id}, extradata)
 
       @transmit type, data, replydata, callback
   
@@ -65,7 +65,7 @@ class Robot
       lid = @listenerId
 
       @listeners[lid] = (msg) ->
-        if msg.replyto == data.id
+        if msg.re == data.id
           callback.call this, msg, @makeReplyCB(msg)
           @unlisten lid
       
