@@ -55,7 +55,7 @@ escapeHTML = (html) ->
       content = msg.data
       klass = "plain"
     else
-      return unless @deluge
+      return unless !msg.local or @deluge
       content = JSON.stringify msg
       klass = "json"
 
