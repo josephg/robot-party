@@ -50,7 +50,7 @@ escapeHTML = (html) ->
 
 
   @listen (msg) ->
-    from = msg.from || "anonymous"
+    from = msg.user || msg.robot || "anonymous"
     if msg.type == 'chat'
       content = msg.data
       klass = "plain"

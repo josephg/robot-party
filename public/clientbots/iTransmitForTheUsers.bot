@@ -1,6 +1,6 @@
-@listen 'usercmd', ({data:val}, reply) ->
+@listen 'usercmd', ({data:val, user}, reply) ->
   if match = val.match /^transmit\s+(.*)$/
   	try
   	  eval "this.transmit(#{match[1]});"
   	catch e
-  	  reply "error", e, {local: true}
+  	  reply "error", e, {local: true, user}

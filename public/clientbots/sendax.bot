@@ -1,5 +1,7 @@
+@robot "sendax"
 @defaults.local = true
-name = undefined
+
+user = undefined
 
 @listen "key sent", ({data:{key}}, reply) ->
   if key is 13
@@ -7,13 +9,13 @@ name = undefined
       if value[0] == '/'
         #This should probably be somewhere else
         if match = value.match /^\/nick\s+(.*)$/
-          oldname = name
-          name = match[1]
-          @transmit "user nickname", {oldname, name}, {local: false}
+          olduser = user
+          user = match[1]
+          @transmit "user nickname", {olduser, user}, {local: false}
 
         @transmit "user input", value
-        @transmit "usercmd", value.slice(1)
+        @transmit "usercmd", value.slice(1), {user}
       else
         @transmit "user input", value
-        @transmit "chat", value, {local: false, from:name}
+        @transmit "chat", value, {local: false, user}
       reply "set input", ""

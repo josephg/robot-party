@@ -57,6 +57,8 @@ class Robot
     return data
 
 
+  robot: (name) -> @defaults.robot = name
+
   sendRaw: (data, callback) ->
 
     if callback?
