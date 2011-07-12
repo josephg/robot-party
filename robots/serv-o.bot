@@ -1,3 +1,5 @@
+@robot 'serv-o'
+
 #io = require('socket.io').listen 4321
 
 connect = require 'connect'
@@ -17,8 +19,8 @@ io.sockets.on 'connection', (s) =>
 	@transmit 'robot connected', s.id
 
 	robot = hub.add ->
-		s.on 'message', (msg) => @sendRaw msg if msg?
-		@listen (msg) -> s.json.send msg
+		s.on 'message', (msg) => @sendRaw msg if msg? and !msg.local
+		@listen (msg) -> s.json.send msg unless msg.local
 
 	s.on 'disconnect', =>
 		hub.remove robot

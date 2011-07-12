@@ -1,0 +1,14 @@
+@robot 'natpuncher'
+
+trust = null
+
+@listen 'trust me', ({user}, reply) ->
+	console.log user
+	if trust == null and user?
+		trust = user
+		reply 'I trust', user
+
+@listen 'nat punch!', ({data:msg, user}) =>
+	if trust == user
+		msg.local = true
+		@sendRaw msg
