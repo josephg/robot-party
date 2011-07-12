@@ -1,3 +1,4 @@
+@robot "inputnik"
 @defaults.local = true
 
 cmd = $("<input id='cmd' />")

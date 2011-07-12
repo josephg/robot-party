@@ -3,16 +3,15 @@
 
 user = undefined
 
+@listen "user nickname", ({local, data: {olduser, user:newuser}}) ->
+  return unless local
+
+  user = newuser
+
 @listen "key sent", ({data:{key}}, reply) ->
   if key is 13
     reply "get input", {}, ({data: value}, reply) ->
       if value[0] == '/'
-        #This should probably be somewhere else
-        if match = value.match /^\/nick\s+(.*)$/
-          olduser = user
-          user = match[1]
-          @transmit "user nickname", {olduser, user}, {local: false}
-
         @transmit "user input", value
         @transmit "usercmd", value.slice(1), {user}
       else

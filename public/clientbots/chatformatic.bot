@@ -1,0 +1,12 @@
+@robot 'chatformatic'
+
+@defaults.local = true
+
+escapeHTML = (html) -> $('<div/>').text(html).html() if html?
+
+console.log "chatformatic loaded"
+
+@listen "chat", ({user, data: msg}) ->
+  console.log "chatformatic got chat", msg
+  message = "<div class='message plain'><div class='source'>#{user || "anonymous"}</div><div class='text'>#{escapeHTML msg}</div></div>"
+  @transmit "display html", message

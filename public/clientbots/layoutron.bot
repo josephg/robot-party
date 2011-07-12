@@ -1,3 +1,4 @@
+@robot "layoutron"
 @defaults.local = true
 
 mainarea = $("<div id='mainarea' />")

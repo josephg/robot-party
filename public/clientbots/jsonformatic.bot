@@ -1,0 +1,20 @@
+@robot 'JSONformatic'
+
+@defaults.local = true
+
+escapeHTML = (html) -> $('<div/>').text(html).html() if html?
+
+deluge = false
+
+@listen (msg) ->
+  return if msg.type is "chat" or (msg.local and !deluge)
+  
+  from = (x for x in [msg.user, msg.robot] when x?).join(" + ") || "anonybot"
+
+  message = "<div class='message json'><div class='source'>#{from}</div><div class='text'>#{escapeHTML JSON.stringify(msg)}</div></div>"
+  @transmit "display html", message
+
+
+@listen "usercmd", ({data}) ->
+  deluge = true if data == "deluge on"
+  deluge = false if data == "deluge off"

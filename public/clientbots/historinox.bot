@@ -1,3 +1,5 @@
+@robot "historinox"
+
 @defaults.local = true
 
 hist = []

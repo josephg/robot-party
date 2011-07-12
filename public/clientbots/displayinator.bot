@@ -1,3 +1,4 @@
+@robot "displayinator"
 @defaults.local = true
 
 container = $("<div id='message-container' />")
@@ -48,25 +49,10 @@ escapeHTML = (html) ->
 
   $(parent).append container
 
-
-  @listen (msg) ->
-    from = msg.user || msg.robot || "anonymous"
-    if msg.type == 'chat'
-      content = msg.data
-      klass = "plain"
-    else
-      return unless !msg.local or @deluge
-      content = JSON.stringify msg
-      klass = "json"
-
-    message = "<div class='message #{klass}'><div class='source'>#{from}</div><div class='text'>#{escapeHTML content}</div></div>"
-
+  @listen "display html", ({data: html}) ->
     scroll = (container.scrollTop() + container.height() == container[0].scrollHeight)
 
-    messages.append message
+    messages.append html
     
     container.scrollTop container[0].scrollHeight if scroll
   
-  @listen "usercmd", ({data}) ->
-    @deluge = true if data == "deluge on"
-    @deluge = false if data == "deluge off"

@@ -1,0 +1,10 @@
+@robot "nix"
+
+user = undefined
+
+@listen 'usercmd', ({data:cmd}, reply) ->
+  if match = cmd.match /nick\s+(.*)$/
+    olduser = user
+    user = match[1]
+    @transmit "user nickname", {olduser, user}
+    @transmit "user nickname", {olduser, user}, {local: true}
