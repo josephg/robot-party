@@ -1,10 +1,21 @@
+@name = 'federatron'
+
 io = require 'socket.io-client'
 
+federated = false
+
 @listen 'federate', ({data:host}, reply) =>
-	socket = io.connect host
+	if federated
+		reply 'error', 'will not federate again'
+	else
+		federated = true
+		socket = io.connect host
 
-	socket.on 'error', (e) -> console.log 'federatron', e
+		socket.on 'error', (e) -> console.log 'federatron', e
 
-	socket.on 'connect', -> reply 'federated'
-	socket.on 'message', (msg) => @sendRaw msg
-	@listen (msg) -> socket.json.send msg
+		socket.on 'connect', ->
+			reply 'federated'
+			socket.json.send {type:'I federated to you guys'}
+
+		socket.on 'message', (msg) => @sendRaw msg
+		@listen (msg) -> socket.json.send msg
