@@ -1,0 +1,31 @@
+@defaults.local = true
+
+hist = []
+pos = -1
+
+@listen "key sent", ({data:{key, ctrl, alt, meta}}, reply) ->
+  return if ctrl or alt or meta
+
+  switch key
+    when 38 #Up
+      if pos is -1
+        reply "get input", {}, ({data: val}, reply) ->
+          if val.length > 0
+            hist.unshift val
+            pos = 0
+          
+          pos = Math.min pos + 1, hist.length - 1
+          reply "set input", hist[pos]
+
+      else
+        pos = Math.min pos + 1, hist.length - 1
+        reply "set input", hist[pos]
+
+    when 40 #Down
+      pos = Math.max pos - 1, -1
+      reply "set input", if pos < 0 then "" else hist[pos]
+        
+    else
+      pos = -1
+@listen "user input", ({data: val}) ->
+  hist.unshift val

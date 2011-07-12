@@ -2,9 +2,14 @@ robots = {}
 
 hub = new Hub
 
+me = this
+hub.add ->
+	@listen (msg) -> me.sendRaw msg
+	me.listen (msg) => @sendRaw msg
+
 @listen "run robot", ({data: {name: roboname, code: robocode}}, reply) ->
   try
-    hub.remove robot[roboname] if robot[roboname]?
+    hub.remove robots[roboname] if robots[roboname]?
     robots[roboname] = hub.add robocode
 
     reply "robot added", name: roboname
@@ -13,7 +18,7 @@ hub = new Hub
 
 @listen "kill robot", ({data: {name}}, reply) ->
   if robots[name]
-    hub.remove robot[roboname] if robot[roboname]?
+    hub.remove robots[roboname] if robots[roboname]?
     reply "robot killed", name: name
   else
     reply "error", {name, msg: "no such robot"}

@@ -132,11 +132,12 @@ body {
 			$('#main').append(win.$container)
 
 			var socket = io.connect()
-			socket.on('message', function (data) {
-				if (data.type === 'chat') {
-					win.message(data.from, data.missive).addClass('plain')
+			socket.on('message', function (msg) {
+				console.log("got chat message", msg)
+				if (msg.type === 'chat') {
+					win.message(msg.from, msg.data).addClass('plain')
 				} else {
-					win.message('->', JSON.stringify(data)).addClass('json')
+					win.message('->', JSON.stringify(msg)).addClass('json')
 				}
 			})
 			var $cmd = $('#cmd'), $status = $('#status')
@@ -159,7 +160,7 @@ body {
 							socket.json.send(cmd)
 							msgclass = 'json'
 						} catch (e) {
-							socket.json.send({from:"user",type:"chat",missive:cmd})
+							socket.json.send({from:"user",type:"chat",data:cmd})
 						}
 
 						var element = win.message('me', cmd)

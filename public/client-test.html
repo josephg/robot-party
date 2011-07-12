@@ -1,41 +1,33 @@
 <html>
   <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
     <script src="http://jashkenas.github.com/coffee-script/extras/coffee-script.js"></script>
     <script src="http://localhost:4321/socket.io/socket.io.js"></script>
     <script type="text/coffeescript" src="Robot.coffee"></script>
+    <script type="text/coffeescript" src="Hub.coffee"></script>
   </head>
   <body>
     <script type="text/coffeescript">
-      # Client-side code
+      defaultRobots = [
+        'connectrix',
+        'layoutron',
+        'displayinator',
+        'inputnik',
+        'sendax',
+        'iTransmitForTheUsers',
+        'historinox'
+      ]
 
-      party = io.connect 'http://localhost:4321'
-
-      robots = []
-
-      Robot.setSocket party
-
-      awesomebot = new Robot ->
-        @name = "awesomebot"
-
-        @message = ->
-          @transmit type: "hello", data: "world"
-
-        @listen (data) ->
-          console.log "awesomebot got", data
-          alert "got " + JSON.stringify(data)
-          
-      echobot = new Robot ->
-        @name = "echobot"
-
-        @listen (data) ->
-          console.log "got data!", JSON.stringify(data)
-          @transmit data
-
-      window.awesomebot = awesomebot
+      hub = new Hub
+      
+      #todo: replace this with clientRobotRunningRobot - also, should probably load in order
+      for robot in defaultRobots
+        do (robot) ->
+          $.ajax url: "clientbots/#{robot}.bot", success: (data) ->        
+            console.log "loaded robot:", robot
+            hub.add data
 
     </script>
 
-
-    <a href="#" onclick="awesomebot.message">Click here to send a message</a>
   </body>
 </html>

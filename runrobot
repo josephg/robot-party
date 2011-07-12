@@ -13,6 +13,11 @@ Hub = require './Hub'
 
 hub = new Hub
 
+hub.add ->
+	process.on 'uncaughtException', (err) =>
+		console.error 'uncaught exception: ' + err.stack
+		try @transmit 'uncaught exception', err
+
 for filename in argv._
 	do (filename) ->
 		robotext = fs.readFile "#{filename}", 'utf8', (err, code) ->

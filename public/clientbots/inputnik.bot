@@ -1,0 +1,16 @@
+@defaults.local = true
+
+cmd = $("<input id='cmd' />")
+cmd.css width: '100%', height: '100%'
+@transmit "want layout", {id: 'cmd', name: "input"}, ({data:{parent}}) ->
+  
+  $(parent).append cmd
+  cmd.keydown (ev) =>
+    @transmit "key sent", key: ev.which, ctrl: ev.ctrlKey, alt: ev.altKey, meta: ev.metaKey
+
+@listen "get input", ({local, data}, reply) ->
+  reply "input value", cmd.val()
+
+@listen "set input", ({local, data}, reply) ->
+  cmd.val(data)
+  reply "ok"
