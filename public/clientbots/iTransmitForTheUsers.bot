@@ -3,6 +3,7 @@
 @listen 'usercmd', ({data:cmd, user}, reply) ->
   if match = cmd.match /^transmit\s+(.*)$/
   	try
+  	  @defaults.user = user
   	  eval "this.transmit(#{match[1]});"
   	catch e
   	  reply "error", e, {local: true, user}

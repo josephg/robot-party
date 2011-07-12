@@ -6,13 +6,18 @@ escapeHTML = (html) -> $('<div/>').text(html).html() if html?
 
 deluge = false
 
+ignores = {}
+
+@listen "handling type", ({data:type}) ->
+  ignores[type] = true
+
 @listen (msg) ->
-  return if msg.type is "chat" or (msg.local and !deluge)
+  return if (ignores[msg.type] or msg.local) and !deluge
   
   from = (x for x in [msg.user, msg.robot] when x?).join(" + ") || "anonybot"
 
-  message = "<div class='message json'><div class='source'>#{from}</div><div class='text'>#{escapeHTML JSON.stringify(msg)}</div></div>"
-  @transmit "display html", message
+  message = "<div class='source'>#{from}</div><div class='text json'>#{escapeHTML JSON.stringify(msg)}</div>"
+  @transmit "display message", message, user: msg.user
 
 
 @listen "usercmd", ({data}) ->

@@ -42,17 +42,26 @@ escapeHTML = (html) ->
       padding: 0 10px;
       word-break: break-all;
     }
-    .message.json .text {
+    .message .text.json {
       color: blue;
+    }
+    .message.me .source {
+      background-color: #eaf2f5;
     }
     "
 
   $(parent).append container
 
-  @listen "display html", ({data: html}) ->
+  me = undefined
+  @listen "user nickname", ({local, data: newuser}) ->
+    me = newuser if local
+
+
+  @listen "display message", ({user, data: message}) ->
     scroll = (container.scrollTop() + container.height() == container[0].scrollHeight)
 
-    messages.append html
+    klass = if user is me then "me" else ""
+    messages.append "<div class='message #{klass}'>#{message}</div>"
     
     container.scrollTop container[0].scrollHeight if scroll
   

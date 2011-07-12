@@ -4,9 +4,8 @@
 
 escapeHTML = (html) -> $('<div/>').text(html).html() if html?
 
-console.log "chatformatic loaded"
+@transmit "handling type", "chat"
 
 @listen "chat", ({user, data: msg}) ->
-  console.log "chatformatic got chat", msg
-  message = "<div class='message plain'><div class='source'>#{user || "anonymous"}</div><div class='text'>#{escapeHTML msg}</div></div>"
-  @transmit "display html", message
+  message = "<div class='source'>#{user || "anonymous"}</div><div class='text'>#{escapeHTML msg}</div>"
+  @transmit "display message", message, {user}

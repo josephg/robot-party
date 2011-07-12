@@ -1,0 +1,23 @@
+@robot 'who3p0'
+@defaults.local = true
+
+me = undefined
+@listen "user nickname", ({local, data: newuser}) ->
+  me = newuser if local
+
+@listen "who", (data, reply) ->
+  reply "who reply", me, local: false if me
+
+@listen 'usercmd', ({data:cmd, user}, reply) ->
+  if cmd is "who"
+    @transmit "who", {}, local: false
+    @transmit "display message", "<div class='source'>*</div><div class='text'>Who:</div>"
+
+escapeHTML = (html) -> $('<div/>').text(html).html() if html?
+
+@listen "who reply", ({data: name}) ->
+  message = "<div class='source'>*</div><div class='text'>&nbsp;&nbsp;&nbsp;#{escapeHTML name}</div>"
+  @transmit "display message", message
+
+@transmit "handling type", "who reply"
+@transmit "handling type", "who"

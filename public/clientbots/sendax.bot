@@ -3,7 +3,7 @@
 
 user = undefined
 
-@listen "user nickname", ({local, data: {olduser, user:newuser}}) ->
+@listen "user nickname", ({local, user: olduser, data: newuser}) ->
   return unless local
 
   user = newuser

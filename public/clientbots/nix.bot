@@ -6,5 +6,5 @@ user = undefined
   if match = cmd.match /nick\s+(.*)$/
     olduser = user
     user = match[1]
-    @transmit "user nickname", {olduser, user}
-    @transmit "user nickname", {olduser, user}, {local: true}
+    @transmit "user nickname", user, user: olduser
+    @transmit "user nickname", user, local: true, user: olduser
