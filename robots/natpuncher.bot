@@ -8,6 +8,6 @@ auth = user:null, password:null
 		reply 'I trust', user
 
 @listen 'nat punch!', ({data:msg, user, password}) =>
-	if auth.user == user and auth.password = password
+	if auth.user == user and auth.password == password
 		msg.local = true
 		@sendRaw msg
