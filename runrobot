@@ -20,18 +20,19 @@ hub.add ->
 
 for filename in argv._
 	do (filename) ->
-		robotext = fs.readFile "#{filename}", 'utf8', (err, code) ->
-			if err
-				console.error "Could not load robot #{filename} : #{err}"
-				return
+		try
+			robotext = fs.readFileSync filename, 'utf8'
+		catch e
+			console.error "Could not load robot #{filename} : #{e.message}"
+			return
 
-			try
-				hub.add code
+		try
+			hub.add robotext
 
-				console.log "Loaded #{filename}"
-			catch e
-				console.log "Could not run #{filename}: #{e}"
-				return
+			console.log "Loaded #{filename}"
+		catch e
+			console.log "Could not run #{filename}: #{e}"
+			return
 
 
 

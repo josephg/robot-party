@@ -1,14 +1,13 @@
 @robot 'natpuncher'
 
-trust = null
+auth = user:null, password:null
 
-@listen 'trust me', ({user}, reply) ->
-	console.log user
-	if trust == null and user?
-		trust = user
+@listen 'trust me', ({user, password}, reply) ->
+	if auth.user == null and user?
+		auth = {user, password}
 		reply 'I trust', user
 
-@listen 'nat punch!', ({data:msg, user}) =>
-	if trust == user
+@listen 'nat punch!', ({data:msg, user, password}) =>
+	if auth.user == user and auth.password == password
 		msg.local = true
 		@sendRaw msg
