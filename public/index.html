@@ -12,6 +12,7 @@
         'connectrix'
         'layoutron'
         'displayinator'
+        'messagebuilder'
         'inputnik'
         'sendax'
         'jsonformatic'
@@ -29,7 +30,7 @@
       for robot in defaultRobots
         do (robot) ->
           $.ajax url: "clientbots/#{robot}.bot", success: (data) ->        
-            console.log "loaded robot:", robot
+            console.log "loading robot:", robot
             hub.add data
 
     </script>

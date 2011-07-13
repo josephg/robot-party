@@ -1,0 +1,27 @@
+@robot "messagebuilder"
+@defaults.local = true
+
+escapeHTML = (html) ->
+  escaped =
+    '&': '&amp;'
+    '<': '&lt;'
+    '>': '&gt;'
+    '"': '&quot;'
+    "'": '&apos;'
+  
+  String(html).replace /[&<>'"]/g, (chr) -> escaped[chr]
+
+
+nl2br = (html) -> html.replace /\n/g, "<br />"
+
+@listen "build message", ({user, data: {source, sourceclass, text, textclass}}) ->
+  source ||= ''
+  text ||= ''
+  sourceclass ||= ''
+  textclass ||= ''
+
+  message = "
+    <div class='source #{sourceclass}'>#{escapeHTML source}</div>
+  	<div class='text #{textclass}'>#{nl2br (escapeHTML text)}</div>
+  "
+  @transmit "display message", message, {user: user}

@@ -8,13 +8,17 @@ user = undefined
 
   user = newuser
 
-@listen "key sent", ({data:{key}}, reply) ->
+@listen "key sent", ({data:{key, alt, ctrl, meta, shift}}, reply) ->
   if key is 13
-    reply "get input", {}, ({data: value}, reply) ->
-      if value[0] == '/'
-        @transmit "user input", value
-        @transmit "usercmd", value.slice(1), {user}
-      else
-        @transmit "user input", value
-        @transmit "chat", value, {local: false, user}
-      reply "set input", ""
+    if alt or ctrl or meta or shift
+      reply "append input", "\n"
+    else
+      reply "get input", {}, ({data: value}, reply) ->
+        if value[0] == '/'
+          @transmit "user input", value
+          @transmit "usercmd", value.slice(1), {user}
+        else if value
+          console.log "value is", value
+          @transmit "user input", value
+          @transmit "chat", value, {local: false, user}
+        reply "set input", ""

@@ -4,8 +4,7 @@
 
 escapeHTML = (html) -> $('<div/>').text(html).html() if html?
 
-@transmit "handling type", "chat"
+@transmit "handling display for type", "chat"
 
 @listen "chat", ({user, data: msg}) ->
-  message = "<div class='source'>#{user || "anonymous"}</div><div class='text'>#{escapeHTML msg}</div>"
-  @transmit "display message", message, {user}
+  @transmit "build message", source: user or "anonymous", text: msg, { user: user }

@@ -1,13 +1,17 @@
 @robot "nickformatic"
 @defaults.local = true
 
-
-escapeHTML = (html) -> $('<div/>').text(html).html() if html?
+me = undefined
 
 @listen "user nickname", ({local, user: oldname, data: newname}) ->
-  return if local
-  message = "<div class='source'>*</div><div class='text'>#{(escapeHTML oldname) || 'anonymous'} is now #{escapeHTML newname}</div>"
-  @transmit "display message", message
+  if local
+    me = newname
+  else
+    if me == oldname
+      text = "* your nick is now #{newname}"
+    else
+      text = "* #{oldname or 'anonymous'} is now #{newname}"
 
+    @transmit "build message", textclass: "status", text: text
 
-@transmit "handling type", "user nickname"
+@transmit "handling display for type", "user nickname"

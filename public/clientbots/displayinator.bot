@@ -5,16 +5,6 @@ container = $("<div id='message-container' />")
 messages = $("<div id='messages' />")
 container.append messages
 
-escapeHTML = (html) ->
-  escaped =
-    '&': '&amp;'
-    '<': '&lt;'
-    '>': '&gt;'
-    '"': '&quot;'
-  
-  String(html).replace /[&<>]/g, (chr) -> escaped[chr]
-
-
 @transmit "want layout", {id: 'message-container', name: "messages"}, ({data:{parent}}) ->
   
   @transmit "add style", "
@@ -32,10 +22,14 @@ escapeHTML = (html) ->
     }
     .message .source {
       display: table-cell;
+      word-break: break-all;
       text-align: right;
       padding: 0 10px;
       border-right: 1px solid lightgray;
-      min-width: 125px;
+      width: 125px;
+    }
+    .message .source.local {
+      background-color: #f2f5ea;
     }
     .message .text {
       display: table-cell;
@@ -44,6 +38,9 @@ escapeHTML = (html) ->
     }
     .message .text.json {
       color: blue;
+    }
+    .message .text.status {
+      color: green;
     }
     .message.me .source {
       background-color: #eaf2f5;
@@ -60,7 +57,8 @@ escapeHTML = (html) ->
   @listen "display message", ({user, data: message}) ->
     scroll = (container.scrollTop() + container.height() == container[0].scrollHeight)
 
-    klass = if user is me then "me" else ""
+    klass = if (me? and user is me) then "me" else "other"
+    console.log "me", me, "user", user, "klass", klass
     messages.append "<div class='message #{klass}'>#{message}</div>"
     
     container.scrollTop container[0].scrollHeight if scroll

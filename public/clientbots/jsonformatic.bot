@@ -2,22 +2,26 @@
 
 @defaults.local = true
 
-escapeHTML = (html) -> $('<div/>').text(html).html() if html?
-
 deluge = false
-
 ignores = {}
 
-@listen "handling type", ({data:type}) ->
+@listen "handling display for type", ({data:type}) ->
   ignores[type] = true
 
 @listen (msg) ->
+  console.log "msg", msg
+  return if msg.type == "display message"
   return if (ignores[msg.type] or msg.local) and !deluge
   
   from = (x for x in [msg.user, msg.robot] when x?).join(" + ") || "anonybot"
+  sourceclass = "local" if msg.local
 
-  message = "<div class='source'>#{from}</div><div class='text json'>#{escapeHTML JSON.stringify(msg)}</div>"
-  @transmit "display message", message, user: msg.user
+  @transmit "build message",
+  	sourceclass: sourceclass,
+  	source: from,
+  	textclass: 'json',
+  	text: JSON.stringify msg,
+  	{user: msg.user}
 
 
 @listen "usercmd", ({data}) ->
