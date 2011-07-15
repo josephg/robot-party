@@ -1,17 +1,20 @@
 coffeescript = window?.CoffeeScript or require 'coffee-script'
 
 class Robot
-  constructor: (@emit, @code) ->
+  constructor: (@hub, @code) ->
     @listeners = {}
     @listenerId = 0
     @defaults = {}
+    @id = @randomId()
 
     Hub = window?.Hub or require './Hub'
 
     if typeof @code == 'string'
-      @code = eval "(function(){" + coffeescript.compile(@code, bare: true) + "})" 
+      @fn = eval "(function(){" + coffeescript.compile(@code, bare: true) + "})" 
+    else
+      [@fn, @code] = [@code]
 
-    @code.apply this
+    @fn.apply this
 
   receive: (msg) ->
     msg.data ?= {}
@@ -30,9 +33,20 @@ class Robot
 
     @listeners[@listenerId] = (msg) ->
       {type} = msg
-      if !matcher or matcher == type or matcher?(type)
+      ok = => fn.call this, msg, @makeReplyCB(msg)
 
-        fn.call this, msg, @makeReplyCB(msg)
+      return ok() if !matcher?
+      return ok() if matcher == type
+      return ok() if typeof matcher is 'function' and matcher(type)
+      if typeof matcher is 'object'
+        allmatches = true
+        for own key, val of matcher
+          if msg[key] != val
+            #console.log "message didn't match on '#{key}'", "(", msg[key], "!=", val, ")"
+            allmatches = false 
+            break
+
+        return ok() if allmatches
               
     @listenerId++
   
@@ -46,7 +60,7 @@ class Robot
   transmit: (type, data, extradata, callback) ->
     [callback, extradata] = [extradata] if typeof extradata is 'function'
     
-    msg = @mergeData @defaults, {type, data, id: @randomId()}, extradata
+    msg = @mergeData @defaults, {type, data, id: @randomId(), from: @id}, extradata
     @sendRaw msg, callback
 
   mergeData: (objs...) ->
@@ -71,11 +85,11 @@ class Robot
       
       @listenerId++
 
-    @emit this, data
+    @hub.broadcast this, data
         
   remove: ->
     @listeners = {}
-    @emit = ->
+    @hub = {broadcast: ->}
 
 if window?
 	window.Robot = Robot if window
