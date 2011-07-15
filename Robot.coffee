@@ -9,10 +9,11 @@ class Robot
 
     Hub = window?.Hub or require './Hub'
 
-    if typeof @code == 'string'
+    if typeof @code is 'string'
       @fn = eval "(function(){" + coffeescript.compile(@code, bare: true) + "})" 
     else
       [@fn, @code] = [@code]
+
 
     @fn.apply this
 

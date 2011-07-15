@@ -9,5 +9,5 @@ hub.add ->
 		console.error 'uncaught exception: ' + err.stack
 		try @transmit 'uncaught exception', err, {local:true}
 
-hub.add fs.readFileSync('robots/fileLoader.bot')
-hub.add fs.readFileSync('init.bot')
+hub.add fs.readFileSync('robots/fileLoader.bot', 'utf8')
+hub.add fs.readFileSync('init.bot', 'utf8')
