@@ -1,0 +1,43 @@
+@robot 'transmissionator'
+
+http = require 'http'
+
+trans_data = {host: 'underwire.local', port: 9091, method: "POST", path: "/transmission/rpc", headers: {}}
+
+setCSRF = (id) -> trans_data.headers["x-transmission-session-id"] = id
+
+trans_cmd = (method, args, cb, retries=0) ->
+  req = http.request trans_data, (res) ->    
+    console.log "got response", res.statusCode
+    switch res.statusCode
+      when 200
+        returndata = []
+
+        res.setEncoding 'utf8'
+        res.on 'data', (chunk) -> returndata.push chunk
+        res.on 'end', -> cb?(JSON.parse(returndata.join('')))
+
+      when 409
+        #console.log "CSRF error - old id:", trans_data.headers["X-Transmission-Session-Id"], "new id", res.headers["X-Transmission-Session-Id"]
+        setCSRF res.headers["x-transmission-session-id"]
+        if retries < 2
+          trans_cmd method, args, cb, retries+1
+        else
+          throw "Session ID Error"
+      
+      else
+        throw "Got status code #{res.statusCode}"
+
+  req.on 'error', (e) -> throw e
+
+  req.write JSON.stringify({method,arguments:args}) + "\n\n"
+  req.end()
+  console.log "sent request", {method, arguments:args}
+  
+
+@listen "add torrent", ({data:url}, reply) ->
+  try
+    trans_cmd "torrent-add", filename: url, (resp) ->
+      reply "torrent added", resp
+  catch e
+    reply "error", e

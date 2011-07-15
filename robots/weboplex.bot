@@ -1,3 +1,5 @@
+@robot 'weboplex'
+
 http = require 'http'
 urllib = require 'url'
 
