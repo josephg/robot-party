@@ -1,0 +1,6 @@
+@robot 'xmlfactoryimpl'
+
+xml2json = require 'xml2json'
+
+@listen 'parse xml', ({data:xml}, reply) ->
+  reply 'xml as json', xml2json.toJson(xml)

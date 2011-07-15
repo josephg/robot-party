@@ -1,14 +1,16 @@
 http = require 'http'
 urllib = require 'url'
 
-@listen "get url", ({data: {url}}, reply) ->
+@listen "get url", ({data: url}, reply) ->
   console.log "url", url
   if not url
     reply "error", "no URL specified"
     return
 
   p = urllib.parse url
-  options = {host: p.hostname, path: p.pathname, port: p.port}
+  path = p.pathname
+  path += "?" + p.query if p.query
+  options = {host: p.hostname, path, port: p.port}
   data = []
   h = http.get options, (res) ->
     if res.headers['content-type'].match(/^text\//)
