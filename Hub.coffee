@@ -21,6 +21,9 @@ class Hub
     idx = @robots.indexOf robot
     @robots.splice(idx, 1) if idx >= 0
 
+  load: (name) ->
+	@transmit 'load robot', '../config', ({type, data}) ->
+		hub.add data if type == 'robocode'
 
 if window?
   window.Hub = Hub if window

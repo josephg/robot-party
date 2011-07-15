@@ -1,0 +1,12 @@
+	@robot 'file robot loader'
+
+	fs = require 'fs'
+	@listen 'load robot', ({data:roboname, local}, reply) ->
+		return unless local
+		
+		fs.readFile "#{_dirname}/robots/#{roboname}.bot", 'utf8', (err, content) ->
+			if err
+				reply 'DOES NOT COMPUTE', "Could not load #{roboname} : #{err}"
+			else
+				reply 'robocode', content
+

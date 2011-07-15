@@ -1,38 +1,13 @@
 #!/usr/bin/env coffee
-
 fs = require 'fs'
-coffeescript = require 'coffee-script'
-argv = require('optimist').
-	usage("Usage: $0 robot0 robot1 robotN").
-	argv
 
-console.log argv._
-
-Robot = require './Robot'
 Hub = require './Hub'
-
 hub = new Hub
 
 hub.add ->
 	process.on 'uncaughtException', (err) =>
 		console.error 'uncaught exception: ' + err.stack
-		try @transmit 'uncaught exception', err
+		try @transmit 'uncaught exception', err, {local:true}
 
-for filename in argv._
-	do (filename) ->
-		try
-			robotext = fs.readFileSync filename, 'utf8'
-		catch e
-			console.error "Could not load robot #{filename} : #{e.message}"
-			return
-
-		try
-			hub.add robotext
-
-			console.log "Loaded #{filename}"
-		catch e
-			console.log "Could not run #{filename}: #{e}"
-			return
-
-
-
+hub.add fs.readFileSync('robots/fileLoader.bot')
+hub.add fs.readFileSync('init.bot')
