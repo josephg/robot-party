@@ -1,0 +1,9 @@
+@robot 'remotebot'
+
+@listen (msg) =>
+	unless msg.local
+		@transmit 'remote message send', msg, local:true
+
+@listen 'remote message received', ({data}) =>
+	unless data?.local
+		@sendRaw data

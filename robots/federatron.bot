@@ -2,6 +2,8 @@
 
 io = require 'socket.io-client'
 
+@defaults.local = true
+
 @listen 'federate', ({data:host, local}, reply) =>
 	return unless local
 
@@ -13,5 +15,11 @@ io = require 'socket.io-client'
 		reply 'federated'
 		socket.json.send {type:'I federated to you guys'}
 
-	socket.on 'message', (msg) => @transmit 'remote message received', msg
-	@listen 'remote message send', ({data:msg}) -> socket.json.send msg
+	socket.on 'message', (msg) =>
+		return if msg.local
+		@transmit 'remote message received', msg
+		@transmit 'remote message send', msg
+
+	@listen 'remote message send', ({data}) ->
+		console.log 'asdf'
+		socket.json.send data

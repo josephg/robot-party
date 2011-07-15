@@ -1,5 +1,7 @@
 @robot 'serv-o'
 
+@defaults.local = true
+
 #io = require('socket.io').listen 4321
 
 connect = require 'connect'
@@ -8,13 +10,14 @@ io = require('socket.io').listen(app)
 io.set 'log level', 2
 app.listen 4321
 
-@listen 'remote message send', ({data:msg}) -> io.broadcast.json.send msg
+@listen 'remote message send', ({data:msg}) -> io.sockets.json.send msg
 
 io.sockets.on 'connection', (s) =>
 	@transmit 'robot connected', s.id
 
 	s.on 'message', (msg) =>
 		@transmit 'remote message received', msg
+		@transmit 'remote message send', msg
 		s.broadcast.json.send msg unless msg.local?
 
 	s.on 'disconnect', =>
