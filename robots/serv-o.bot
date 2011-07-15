@@ -8,21 +8,15 @@ io = require('socket.io').listen(app)
 io.set 'log level', 2
 app.listen 4321
 
-hub = new Hub
-
-me = this
-hub.add ->
-	@listen (msg) -> me.sendRaw msg
-	me.listen (msg) => @sendRaw msg
+@listen 'remote message send', ({data:msg}) -> io.broadcast.json.send msg
 
 io.sockets.on 'connection', (s) =>
 	@transmit 'robot connected', s.id
 
-	robot = hub.add ->
-		s.on 'message', (msg) => @sendRaw msg if msg? and !msg.local
-		@listen (msg) -> s.json.send msg unless msg.local
+	s.on 'message', (msg) =>
+		@transmit 'remote message received', msg
+		s.broadcast.json.send msg unless msg.local?
 
 	s.on 'disconnect', =>
-		hub.remove robot
 		@transmit 'robot disconnected', s.id
 		
