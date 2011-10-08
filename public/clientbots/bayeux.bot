@@ -1,0 +1,24 @@
+@robot "bayeux"
+
+party = new Faye.Client 'http://localhost:4321/bayeux'
+
+party.addExtension
+	incoming: (message, callback) ->
+		if message.channel is '/meta/handshake' and message.successful
+			@_clientId = message.clientId
+		else if message.data?
+			message.data.local = true if message.clientId is @_clientId
+
+		callback message
+
+party.subscribe '/msg', (msg) =>
+	unless msg.local
+		@sendRaw msg
+
+@listen (msg) ->
+	unless msg.local
+		party.publish '/msg', msg
+
+setTimeout ->
+		party.publish '/msg', 'hi there'
+	, 1000
