@@ -1,6 +1,6 @@
 @robot "bayeux"
 
-party = new Faye.Client 'http://localhost:4321/bayeux'
+party = new Faye.Client '/bayeux'
 
 party.addExtension
 	incoming: (message, callback) ->
@@ -18,7 +18,3 @@ party.subscribe '/msg', (msg) =>
 @listen (msg) ->
 	unless msg.local
 		party.publish '/msg', msg
-
-setTimeout ->
-		party.publish '/msg', 'hi there'
-	, 1000
