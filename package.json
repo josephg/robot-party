@@ -1,5 +1,5 @@
 {
-	"name": "robonomicon",
+	"name": "robonot-party",
 	"version": "0.1.0",
 	"description": "robots run robots",
 	"main": "lib/index.js",
@@ -15,6 +15,6 @@
 	}],
 	"repository": {
 		"type": "git",
-		"url": "http://github.com/josephg/robonomicon.git"
+		"url": "http://github.com/josephg/robot-party.git"
 	}
 }
