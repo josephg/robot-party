@@ -1,0 +1,17 @@
+@robot 'entitytracker',
+  local: true
+
+#entities = {}
+
+@listen "who reply", ({from, data: {name, hub}}) ->
+  @transmit "list entities", [{name, id: from, hub, info:{}}]
+
+@listen "I have robots", ({from, data: robots}) ->
+  robot.hub = from for robot in robots
+  console.log "from is", from
+  @transmit "list entities", robots
+
+setTimeout =>
+  @transmit "who"
+  @transmit "list robots"
+, 200

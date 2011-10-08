@@ -72,7 +72,9 @@ class Robot
     return data
 
 
-  robot: (name) -> @defaults.robot = name
+  robot: (@name, @info={}) ->
+    @defaults.local = true if @info.local
+    @defaults.robot = name
 
   sendRaw: (data, callback) ->
 

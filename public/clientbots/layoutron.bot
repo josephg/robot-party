@@ -11,7 +11,11 @@ inputarea.css position: 'absolute', bottom: 0, left: 0, right: 0, height: '2em'
 
 textarea = $("<div id='textarea' />")
 mainarea.append textarea
-textarea.css position: 'absolute', top: 0, bottom: '2em', left: 0, right: 0
+textarea.css position: 'absolute', top: 0, bottom: '2em', left: 0, right: '20%'
+
+sidebar = $("<div id='sidebar' />")
+mainarea.append sidebar
+sidebar.css position: 'absolute', top: 0, bottom: '2em', left: '80%', right: 0
 
 @listen "want layout", ({data: {name}}, reply) ->
   if name is "input"
@@ -19,6 +23,9 @@ textarea.css position: 'absolute', top: 0, bottom: '2em', left: 0, right: 0
 
   if name is "messages"
     reply "layout", parent: '#textarea'
+
+  if name is "sidebar"
+  	reply "layout", parent: "#sidebar"
 
 @listen "add style", ({data: style}, reply) ->
   try
