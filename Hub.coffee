@@ -7,10 +7,9 @@ hubfn = ->
     hub: true
 
   @listen "list robots", (msg, reply) ->
-    console.log "robots", @hub.robots
     reply "I have robots", ({id, name, info} for id, {name, info} of @hub.robots when @hub.robots[id].name)
 
-  @listen to: @id, local: true, type: "get robot", ({data: id}, reply) ->
+  @listen to: @id, type: "get robot", ({data: id}, reply) ->
     reply "code for robot", @hub.robots[id].code if @hub.robots[id]?.code?
 
   @listen to: @id, local: true, type: "add robot", ({data: robocode}, reply) ->

@@ -6,7 +6,7 @@ me = undefined
   me = newuser if local
 
 @listen "who", (data, reply) ->
-  reply "who reply", {name: me, hub: @hub.id}, local: false if me
+  reply "who reply", {name: me, hub: @hub.id}, {local: false} if me
 
 @listen 'usercmd', ({data:cmd, user}, reply) ->
   if cmd is "who"

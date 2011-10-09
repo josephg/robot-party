@@ -1,0 +1,10 @@
+@robot "copyscript",
+  local: true
+
+@listen local: true, type: "copy robot", ({data: {fromhub, tohub, id}}, reqreply) ->
+  @transmit "get robot", id, to: fromhub, local: false, ({data: code}) ->
+    @transmit "add robot", code, to: tohub, ({type, newid}) ->
+      if type is "error"
+        reqreply "error", newid
+      else
+        reqreply "copied robot", from: id, to: newid
