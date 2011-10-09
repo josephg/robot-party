@@ -17,7 +17,7 @@ io.sockets.on 'connection', (s) =>
 	s.on 'message', (msg) =>
 		@transmit 'remote message received', msg
 		@transmit 'remote message send', msg
-		s.broadcast.json.send msg unless msg.local?
+		s.broadcast.json.send msg unless msg.local
 
 	s.on 'disconnect', =>
 		@transmit 'robot disconnected', s.id
