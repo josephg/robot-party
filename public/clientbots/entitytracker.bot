@@ -3,6 +3,10 @@
 
 #entities = {}
 
+
+@transmit "handling display for type", "list robots"
+@transmit "handling display for type", "I have robots"
+
 @listen "who reply", ({from, data: {name, hub}}) ->
   @transmit "list entities", [{name, id: from, hub, info:{}}]
 

@@ -32,6 +32,9 @@ renderEty = (panel, {id, hub, name, info}) ->
 unrenderEty = (panel, id) ->
   panel.find("[data-eid=#{id}").remove()
 
+@transmit "handling display for type", "list entities"
+@transmit "handling display for type", "delist entities"
+
 @transmit "want layout", {name: "sidebar"}, ({data:{parent}}) ->
   
   @transmit "add style", "
