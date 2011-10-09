@@ -1,7 +1,7 @@
 @robot 'roboname'
 
 prefixes = [
-    "Gol"
+#  "Gol"
 	"Person"
 	"C-"
 	"R2-"
@@ -11,9 +11,9 @@ prefixes = [
 	"Percept"
 	"Sky"
 	"Quick"
-    "Gun"
-    "Metal"
-    "Iron"
+  "Gun"
+  "Metal"
+  "Iron"
 ]
 
 suffixes = [
@@ -31,9 +31,9 @@ suffixes = [
 	"plex"
 	"tron"
 	"bolt"
-    "rider"
-    "spin"
-    "stream"
+  "rider"
+  "spin"
+  "stream"
 ]
 
 adjectives = [
@@ -42,10 +42,10 @@ adjectives = [
 	"Zeta"
 	"Optimus"
 	"Alpha"
-    "Omega"
-    "Galaxy"
-    "Star"
-    "Sonic"
+  "Omega"
+  "Galaxy"
+  "Star"
+  "Sonic"
 ]
 
 end = [
@@ -56,7 +56,7 @@ end = [
 	"2000"
 #	"Nova"
 	"Prime"
-    "Squad"
+  "Squad"
 ]
 
 randomInt = (n) -> Math.floor(Math.random() * n)
@@ -69,6 +69,5 @@ gen = ->
 	name = "#{name} #{randomElem end}" if r > 0.85
 	name
 
-@listen 'name me', -> @transmit {type:"robo", data:gen()}
-@transmit "ROBOHI"
+@listen 'name me', (data, reply) -> reply 'name', gen()
 

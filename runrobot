@@ -10,4 +10,4 @@ hub.add ->
 		try @transmit 'uncaught exception', err, {local:true}
 
 hub.add fs.readFileSync('robots/fileLoader.bot', 'utf8')
-hub.add fs.readFileSync('init.bot', 'utf8')
+hub.load '../init'

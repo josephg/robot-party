@@ -1,5 +1,7 @@
 @robot "layoutron"
   local: true
+ 
+$('body').css 'font-family': "'Ubuntu Mono', monospace"
 
 mainarea = $("<div id='mainarea' />")
 $('body').append mainarea

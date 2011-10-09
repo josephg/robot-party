@@ -1,19 +1,29 @@
 coffeescript = window?.CoffeeScript or require 'coffee-script'
 
+merge = (objs...) ->
+  data = {}
+  for obj in objs when typeof obj is 'object'
+    for own k, v of obj
+      data[k] = v
+  return data
+ 
+randomId = (length = 10) ->
+  chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-="
+  (chars[Math.floor(Math.random() * chars.length)] for x in [0...length]).join('')
+
 class Robot
   constructor: (@hub, @code) ->
     @listeners = {}
     @listenerId = 0
     @defaults = {}
-    @id = @randomId()
+    @id = randomId()
 
     Hub = window?.Hub or require './Hub'
 
     if typeof @code is 'string'
-      @fn = eval "(function(){" + coffeescript.compile(@code, bare: true) + "})" 
+      @fn = eval "(function(){" + coffeescript.compile(@code, bare: true) + "})"
     else
       [@fn, @code] = [@code]
-
 
     @fn.apply this
 
@@ -23,12 +33,35 @@ class Robot
       listener.call this, msg
 
   makeReplyCB: (msg) ->
-    return (type, data, extradata, callback) =>
-      [callback, extradata] = [extradata] if typeof extradata is 'function'
-      replydata = @mergeData({re: msg.id}, extradata)
+    (metadata, data, callback) =>
+      metadata = {type:metadata} if typeof metadata is 'string'
+      metadata.re ?= msg.id
+      @transmit metadata, data, callback
 
-      @transmit type, data, replydata, callback
-  
+  # transmit 'type', -> ...
+  # transmit {type:'foo'}, 'hi', ->
+  # transmit {type:'foo'}, ->
+  # transmit {type:'foo', data}, ->
+  transmit: (metadata, data, callback) ->
+    metadata = {type:metadata} if typeof metadata is 'string'
+    [callback, data] = [data] if typeof data is 'function'
+
+    msg = merge @defaults, {data, id: randomId(), from: @id}, metadata
+    @sendRaw msg, callback
+
+  sendRaw: (data, callback) ->
+    if callback?
+      lid = @listenerId
+
+      @listeners[lid] = (msg) ->
+        if msg.re == data.id
+          callback.call this, msg, @makeReplyCB(msg)
+          @unlisten lid
+      
+      @listenerId++
+
+    @hub.broadcast this, data
+    
   listen: (matcher, fn) ->
     [fn, matcher] = [matcher] if not fn?
 
@@ -44,7 +77,7 @@ class Robot
         for own key, val of matcher
           if msg[key] != val
             #console.log "message didn't match on '#{key}'", "(", msg[key], "!=", val, ")"
-            allmatches = false 
+            allmatches = false
             break
 
         return ok() if allmatches
@@ -54,47 +87,15 @@ class Robot
   unlisten: (id) ->
     delete @listeners[id]
       
-  randomId: (length = 10) ->
-    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-="
-    (chars[Math.floor(Math.random() * chars.length)] for x in [0...length]).join('')
-
-  transmit: (type, data, extradata, callback) ->
-    [callback, extradata] = [extradata] if typeof extradata is 'function'
-    
-    msg = @mergeData @defaults, {type, data, id: @randomId(), from: @id}, extradata
-    @sendRaw msg, callback
-
-  mergeData: (objs...) ->
-    data = {}
-    for obj in objs when typeof obj is 'object'
-      for own k, v of obj
-        data[k] = v
-    return data
-
-
   robot: (@name, @info={}) ->
     @defaults.local = true if @info.local
     @defaults.robot = name
-
-  sendRaw: (data, callback) ->
-
-    if callback?
-      lid = @listenerId
-
-      @listeners[lid] = (msg) ->
-        if msg.re == data.id
-          callback.call this, msg, @makeReplyCB(msg)
-          @unlisten lid
-      
-      @listenerId++
-
-    @hub.broadcast this, data
-        
+   
   remove: ->
     @listeners = {}
     @hub = {broadcast: ->}
 
 if window?
-	window.Robot = Robot if window
+  window.Robot = Robot if window
 else
-	module.exports = Robot
+  module.exports = Robot

@@ -1,0 +1,10 @@
+@robot 'chatformatic'
+  local: true
+
+escapeHTML = (html) -> $('<div/>').text(html).html() if html?
+
+@transmit "handling display for type", "chat"
+
+@listen "chat", ({user, data}) ->
+  @transmit type:"build message", user:user, data:{source:user or "anonymous", text:data}
+  #@transmit "build message", source: user or "anonymous", text: msg, { user: user }

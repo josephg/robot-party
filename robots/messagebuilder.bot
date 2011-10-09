@@ -24,4 +24,4 @@ nl2br = (html) -> html.replace /\n/g, "<br />"
     <div class='source #{sourceclass}'>#{escapeHTML source}</div>
   	<div class='text #{textclass}'>#{nl2br (escapeHTML text)}</div>
   "
-  @transmit "display message", message, {user: user}
+  @transmit type:"display message", user:user, data:message

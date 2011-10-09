@@ -1,8 +1,17 @@
 @robot "inputnik"
   local: true
 
-cmd = $("<textarea id='cmd' />")
-cmd.css width: '100%', height: '100%'
+cmd = $("<textarea id='cmd' autofocus />")
+
+@transmit "add style", "
+  #cmd {
+    width: 100%;
+    height: 100%;
+    font-family: inherit;
+    font-size: inherit;
+  }
+"
+
 @transmit "want layout", {id: 'cmd', name: "input"}, ({data:{parent}}) ->
   
   $(parent).append cmd
@@ -14,7 +23,7 @@ cmd.css width: '100%', height: '100%'
       meta: ev.metaKey,
       shift: ev.shiftKey,
       
-      ev.preventDefault() if ev.which is 13
+    ev.preventDefault() if ev.which is 13
 
 @listen "get input", ({local, data}, reply) ->
   reply "input value", cmd.val()
