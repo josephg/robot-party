@@ -15,6 +15,6 @@
   @transmit "list entities", robots
 
 setTimeout =>
-  @transmit "who", {}, local: false
-  @transmit "list robots", {}, local:false
+  @transmit type:"who", local:false
+  @transmit type:"list robots", local:false
 , 200

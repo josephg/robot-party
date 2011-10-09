@@ -23,7 +23,7 @@ cmd = $("<textarea id='cmd' autofocus />")
       meta: ev.metaKey,
       shift: ev.shiftKey,
       
-      ev.preventDefault() if ev.which is 13
+    ev.preventDefault() if ev.which is 13
 
 @listen "get input", ({local, data}, reply) ->
   reply "input value", cmd.val()

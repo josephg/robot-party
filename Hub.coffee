@@ -49,7 +49,7 @@ class Hub
     robot
 
   load: (name, fn) ->
-    @hubbot.transmit 'load robot', name, {local:true}, ({type, data}) =>
+    @hubbot.transmit {type:'load robot', local:true, data:name}, ({type, data}) =>
       @add data if type == 'robocode'
       fn?()
 

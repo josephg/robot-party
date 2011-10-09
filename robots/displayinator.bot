@@ -23,7 +23,7 @@ container.append messages
     text-align: right;
     padding: 0 10px;
     border-right: 1px solid lightgray;
-    width: 125px;
+    width: 150px;
   }
   .message .source.local {
     background-color: #f2f5ea;

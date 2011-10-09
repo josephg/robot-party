@@ -3,9 +3,15 @@
 
 user = undefined
 
+setUser = (name) =>
+  olduser = user
+  user = name
+  @transmit type:"user nickname", user:olduser, data:user
+  @transmit type:"user nickname", user:olduser, data:user, local:true
+
+@transmit {type:'name me', local:false}, ({data}) -> setUser data
+
 @listen 'usercmd', ({data:cmd}, reply) ->
   if match = cmd.match /nick\s+(.*)$/
-    olduser = user
-    user = match[1]
-    @transmit "user nickname", user, user: olduser
-    @transmit "user nickname", user, local: true, user: olduser
+    setUser match[1]
+

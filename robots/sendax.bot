@@ -13,12 +13,11 @@ user = undefined
     if alt or ctrl or meta or shift
       reply "append input", "\n"
     else
-      reply "get input", {}, ({data: value}, reply) ->
+      reply "get input", ({data: value}, reply) ->
         if value[0] == '/'
           @transmit "user input", value
-          @transmit "usercmd", value.slice(1), {user}
+          @transmit type:"usercmd", user:user, data:value.slice(1)
         else if value
-          console.log "value is", value
           @transmit "user input", value
-          @transmit "chat", value, {local: false, user}
+          @transmit type:"chat", local:false, user:user, data:value
         reply "set input", ""
