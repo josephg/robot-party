@@ -28,14 +28,14 @@ renderEty = (panel, {id, hub, name, info}) ->
     if info.hub
       detailView id
   
-  oldel = panel.find("[data-eid=#{id}]")
+  oldel = panel.find("[data-eid='#{id}']")
   if oldel.length
     oldel.replaceWith el
   else 
     panel.append el
 
 unrenderEty = (panel, id) ->
-  panel.find("[data-eid=#{id}]").remove()
+  panel.find("[data-eid='#{id}]']").remove()
 
 @transmit "handling display for type", "list entities"
 @transmit "handling display for type", "delist entities"
