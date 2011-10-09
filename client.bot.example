@@ -1,22 +1,19 @@
 @robot 'init', local:true
 
-@hub.load 'bayeux'
-
-@hub.load 'layoutron', =>
-  @hub.load 'displayinator', =>
-    @hub.load r for r in [
-      'messagebuilder'
-      'accordy1'
-      'inputnik'
-      'sendax'
-      'jsonformatic'
-      'iTransmitForTheUsers'
-      'historinox'
-      'chatformatic'
-      'nickformatic'
-      'nix'
-      'who3p0'
-      'entitytracker'
-    ]
-
-
+@hub.load
+  bayeux: null
+  layoutron:
+    jsonformatic:
+      displayinator: [
+        'chatformatic'
+        'nickformatic'
+        'nix'
+        'who3p0'
+        'messagebuilder'
+        'inputnik'
+        'sendax'
+        'iTransmitForTheUsers'
+        'historinox'
+        'accordy1'
+        'entitytracker'
+      ]
