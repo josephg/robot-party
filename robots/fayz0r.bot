@@ -6,9 +6,14 @@ connect = require 'connect'
 app = connect connect.static(__dirname + '/public')
 
 faye = require 'faye'
-bayeux = new faye.NodeAdapter
+bayeux = new faye.NodeAdapter timeout: 15
 bayeux.attach app
 app.listen 4321
+
+bayeux.addExtension
+	incoming: (message, callback) ->
+#		console.warn (new Date()).getSeconds(), message
+		callback message
 
 client = bayeux.getClient()
 
@@ -16,6 +21,7 @@ client.addExtension
 	incoming: (message, callback) ->
 		if message.channel is '/meta/handshake' and message.successful
 			@_clientId = message.clientId
+
 		else if message.data?
 			message.data.local = true if message.clientId is @_clientId
 
@@ -30,4 +36,5 @@ client.addExtension
 client.subscribe '/msg', (msg) =>
 	return if msg.local
 	@transmit 'remote message received', msg
+	@transmit 'remote message send', msg
 
