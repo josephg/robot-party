@@ -27,10 +27,15 @@ renderEty = (panel, {id, hub, name, info}) ->
     console.log "clicked #{name} with id #{id} and hubid #{hub}"
     if info.hub
       detailView id
-  panel.append el
+  
+  oldel = panel.find("[data-eid='#{id}']")
+  if oldel.length
+    oldel.replaceWith el
+  else 
+    panel.append el
 
 unrenderEty = (panel, id) ->
-  panel.find("[data-eid=#{id}").remove()
+  panel.find("[data-eid='#{id}]']").remove()
 
 @transmit "handling display for type", "list entities"
 @transmit "handling display for type", "delist entities"
@@ -83,19 +88,18 @@ unrenderEty = (panel, id) ->
 
   $(parent).append accordion
 
-  @listen "list entities", ({data: etys}) ->
+  @listen local: true, type: "list entities", ({data: etys}) ->
     #return unless local
     for ety in etys
-      if !entities[ety.id]
-        renderEty etylist, ety unless ety.info.local
-        renderEty detail, ety if ety.hub is detailHub
-        renderEty local, ety if ety.hub is localHub
-
+      renderEty etylist, ety unless ety.info.local
+      renderEty detail, ety if ety.hub is detailHub
+      renderEty local, ety if ety.hub is localHub
+            
       entities[ety.id] = ety
       hubs[ety.hub] ||= {}
       hubs[ety.hub][ety.id] = ety
 
-  @listen "delist entities", ({data: ids}) ->
+  @listen local: true, type: "delist entities", ({data: ids}) ->
     #return unless local
     for id in ids
       unrenderEty etylist, id
