@@ -10,7 +10,7 @@ class Robot
     Hub = window?.Hub or require './Hub'
 
     if typeof @code is 'string'
-      @fn = eval "(function(){" + coffeescript.compile(@code, bare: true) + "})" 
+      @fn = eval "(function(){" + coffeescript.compile(@code, bare: true) + "})"
     else
       [@fn, @code] = [@code]
 
@@ -44,7 +44,7 @@ class Robot
         for own key, val of matcher
           if msg[key] != val
             #console.log "message didn't match on '#{key}'", "(", msg[key], "!=", val, ")"
-            allmatches = false 
+            allmatches = false
             break
 
         return ok() if allmatches
@@ -95,6 +95,6 @@ class Robot
     @hub = {broadcast: ->}
 
 if window?
-	window.Robot = Robot if window
+  window.Robot = Robot if window
 else
-	module.exports = Robot
+  module.exports = Robot

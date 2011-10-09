@@ -1,8 +1,17 @@
 @robot "inputnik"
   local: true
 
-cmd = $("<textarea id='cmd' />")
-cmd.css width: '100%', height: '100%'
+cmd = $("<textarea id='cmd' autofocus />")
+
+@transmit "add style", "
+  #cmd {
+    width: 100%;
+    height: 100%;
+    font-family: inherit;
+    font-size: inherit;
+  }
+"
+
 @transmit "want layout", {id: 'cmd', name: "input"}, ({data:{parent}}) ->
   
   $(parent).append cmd

@@ -5,48 +5,46 @@ container = $("<div id='message-container' />")
 messages = $("<div id='messages' />")
 container.append messages
 
-@transmit "want layout", {id: 'message-container', name: "messages"}, ({data:{parent}}) ->
-  
-  @transmit "add style", "
-    #message-container {
-      overflow-y: scroll;
-      width: 100%;
-      height: 100%;
-    }
-    #messages {
-      display: table;
-    }
-    .message {
-      font-family: monospace
-      display: table-row;
-    }
-    .message .source {
-      display: table-cell;
-      word-break: break-all;
-      text-align: right;
-      padding: 0 10px;
-      border-right: 1px solid lightgray;
-      width: 125px;
-    }
-    .message .source.local {
-      background-color: #f2f5ea;
-    }
-    .message .text {
-      display: table-cell;
-      padding: 0 10px;
-      word-break: break-all;
-    }
-    .message .text.json {
-      color: blue;
-    }
-    .message .text.status {
-      color: green;
-    }
-    .message.me .source {
-      background-color: #eaf2f5;
-    }
-    "
+@transmit "add style", "
+  #message-container {
+    overflow-y: scroll;
+    width: 100%;
+    height: 100%;
+  }
+  #messages {
+    display: table;
+  }
+  .message {
+    display: table-row;
+  }
+  .message .source {
+    display: table-cell;
+    word-break: break-all;
+    text-align: right;
+    padding: 0 10px;
+    border-right: 1px solid lightgray;
+    width: 125px;
+  }
+  .message .source.local {
+    background-color: #f2f5ea;
+  }
+  .message .text {
+    display: table-cell;
+    padding: 0 10px;
+    word-break: break-all;
+  }
+  .message .text.json {
+    color: blue;
+  }
+  .message .text.status {
+    color: green;
+  }
+  .message.me .source {
+    background-color: #eaf2f5;
+  }
+  "
 
+@transmit "want layout", {id: 'message-container', name: "messages"}, ({data:{parent}}) ->
   $(parent).append container
 
   me = undefined
