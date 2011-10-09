@@ -32,7 +32,7 @@ client.addExtension
 
 		callback message
 
-@listen 'remote message send', ({data}) ->
+@listen (data) ->
 	client.publish '/msg', data
 
 #	@transmit 'robot connected', s.id
@@ -40,6 +40,5 @@ client.addExtension
 
 client.subscribe '/msg', (msg) =>
 	return if msg is null or msg.local
-	@transmit 'remote message received', msg
-	@transmit 'remote message send', msg
+  @sendRaw msg
 

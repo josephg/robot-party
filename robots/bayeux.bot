@@ -2,9 +2,6 @@
 
 party = new Faye.Client '/bayeux', timeout: 20
 
-status = (msg) =>
-	@transmit 'build message', {textclass: 'status', text: msg}
-
 party.addExtension
 	incoming: (message, callback) ->
 		if message.channel is '/meta/handshake' and message.successful
