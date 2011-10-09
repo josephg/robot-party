@@ -1,3 +1,0 @@
-@robot 'printbot'
-
-@listen (data) -> console.log data

@@ -32,7 +32,7 @@
       #todo: replace this with clientRobotRunningRobot - also, should probably load in order
       for robot in defaultRobots
         do (robot) ->
-          $.ajax url: "clientbots/#{robot}.bot", success: (data) ->        
+          $.ajax url: "robots/#{robot}.bot", success: (data) ->        
             console.log "loading robot:", robot
             hub.add data
 
