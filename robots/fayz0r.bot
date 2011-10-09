@@ -1,4 +1,4 @@
-@robot 'fayz0r'
+@robot 'fayz0r', local: true
 
 # faye
 
@@ -15,6 +15,8 @@ app.listen 4321
 bayeux.addExtension
 	incoming: (message, callback) ->
 #		console.warn (new Date()).getSeconds(), message
+#		if message.data?
+#			message.data.faye = message.clientId
 		callback message
 
 client = bayeux.getClient()
@@ -26,8 +28,7 @@ client.addExtension
 
 		else if message.data? and message.clientId is @_clientId
 			message = Object.create message
-			message.data = Object.create message.data
-			message.data.echo = true 
+			message.data = null
 
 		callback message
 
@@ -38,7 +39,7 @@ client.addExtension
 #		@transmit 'robot disconnected', s.id
 
 client.subscribe '/msg', (msg) =>
-	return if msg.echo or msg.local
+	return if msg is null or msg.local
 	@transmit 'remote message received', msg
 	@transmit 'remote message send', msg
 

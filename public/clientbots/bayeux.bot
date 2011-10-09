@@ -1,18 +1,23 @@
-@robot "bayeux"
+@robot "bayeux", local:true
 
-party = new Faye.Client '/bayeux'
+party = new Faye.Client '/bayeux', timeout: 20
+
+status = (msg) =>
+	@transmit 'build message', {textclass: 'status', text: msg}
 
 party.addExtension
 	incoming: (message, callback) ->
 		if message.channel is '/meta/handshake' and message.successful
 			@_clientId = message.clientId
-		else if message.data?
-			message.data.local = true if message.clientId is @_clientId
+
+		else if message.data? and message.clientId is @_clientId
+			message = Object.create message
+			message.data = null
 
 		callback message
 
 party.subscribe '/msg', (msg) =>
-	unless msg.local
+	unless msg is null or msg.local
 		@sendRaw msg
 
 @listen (msg) ->
