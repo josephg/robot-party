@@ -10,33 +10,10 @@
   </head>
   <body>
     <script type="text/coffeescript">
-      defaultRobots = [
-        'bayeux'
-        'layoutron'
-        'displayinator'
-        'messagebuilder'
-        'accordy1'
-        'inputnik'
-        'sendax'
-        'jsonformatic'
-        'iTransmitForTheUsers'
-        'historinox'
-        'chatformatic'
-        'nickformatic'
-        'nix'
-        'who3p0'
-        'entitytracker'
-      ]
-
       hub = new Hub
-      
-      #todo: replace this with clientRobotRunningRobot - also, should probably load in order
-      for robot in defaultRobots
-        do (robot) ->
-          $.ajax url: "robots/#{robot}.bot", success: (data) ->        
-            console.log "loading robot:", robot
-            hub.add data
-
+      $.ajax url: "/robots/ajaxis.bot", success: (data) ->
+        hub.add data
+        hub.load '../client'
     </script>
 
   </body>

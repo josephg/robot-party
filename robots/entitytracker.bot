@@ -12,7 +12,6 @@
 
 @listen "I have robots", ({from, data: robots}) ->
   robot.hub = from for robot in robots
-  console.log "from is", from
   @transmit "list entities", robots
 
 setTimeout =>

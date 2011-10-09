@@ -1,0 +1,12 @@
+@robot 'ajaxis', local:true
+
+@listen 'load robot', ({data:roboname, local}, reply) ->
+  return unless local
+
+  $.ajax
+    url: "robots/#{roboname}.bot"
+    success: (data) ->
+      reply 'robocode', data
+    error: (xhr, message, error) ->
+      reply 'DOES NOT COMPUTE', "Could not load #{roboname} : #{message} #{error}"
+
