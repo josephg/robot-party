@@ -1,4 +1,3 @@
 @robot 'printbot'
-  local: true
 
 @listen (data) -> console.log data

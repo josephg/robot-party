@@ -20,5 +20,4 @@ io = require 'socket.io-client'
 		@transmit 'remote message send', msg
 
 	@listen 'remote message send', ({data}) ->
-		console.log 'asdf'
 		socket.json.send data

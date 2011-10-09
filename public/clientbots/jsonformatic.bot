@@ -8,7 +8,6 @@ ignores = {}
   ignores[type] = true
 
 @listen (msg) ->
-  console.log "msg", msg
   return if msg.type == "display message"
   return if (ignores[msg.type] or msg.local) and !deluge
   
