@@ -14,6 +14,7 @@ prefixes = [
   "Gun"
   "Metal"
   "Iron"
+  "Mecha"
 ]
 
 suffixes = [
@@ -34,6 +35,8 @@ suffixes = [
   "rider"
   "spin"
   "stream"
+  "godzilla"
+  "dragon"
 ]
 
 adjectives = [
@@ -69,5 +72,5 @@ gen = ->
 	name = "#{name} #{randomElem end}" if r > 0.85
 	name
 
-@listen 'name me', (data, reply) -> reply 'name', gen()
+@listen 'name me', (data, reply) -> reply 'your name is', gen()
 

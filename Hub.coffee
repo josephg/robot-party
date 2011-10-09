@@ -2,6 +2,16 @@ Robot = window?.Robot or require './Robot'
 
 nextTick = process?.nextTick || (fn) -> setTimeout fn, 0
 
+# Wait for the function to be called a given number of times, then call the callback.
+expectCalls = (n, callback) ->
+	remaining = n
+	->
+		remaining--
+		if remaining == 0
+			callback()
+		else if remaining < 0
+			throw new Error "expectCalls called more than #{n} times"
+
 hubfn = ->
   @robot 'hubbot'
     hub: true
@@ -47,10 +57,28 @@ class Hub
     delete @robots[robot.id]
     robot
 
-  load: (name, fn) ->
-    @hubbot.transmit {type:'load robot', local:true, data:name}, ({type, data}) =>
-      @add data if type == 'robocode'
-      fn?()
+  # This loads a robot given its name, or an array of robots, or an object of robot dependancies.
+  load: (robots, callback) ->
+    loadOne = (name, callback) =>
+      @hubbot.transmit {type:'load robot', local:true, data:name}, ({type, data}) =>
+        @add data if type == 'robocode'
+        callback?()
+
+    if typeof robots is 'function'
+      robots()
+      callback?()
+    else if typeof robots is 'string'
+      loadOne robots, callback
+    else if Array.isArray robots
+      f = expectCalls robots.length, callback
+      @load r, f for r in robots
+    else if typeof robots is 'object'
+      num = 0 # First we'll count the number of things in the object
+      num++ for k, v of robots
+      f = expectCalls num, callback
+      loadOne k, (do (v) => => @load v, callback) for k, v of robots
+    else
+      callback?()
 
 if window?
   window.Hub = Hub if window
