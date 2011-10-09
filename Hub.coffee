@@ -22,18 +22,11 @@ hubfn = ->
   @listen to: @id, type: "get robot", ({data: id}, reply) ->
     reply "code for robot", @hub.robots[id].code if @hub.robots[id]?.code?
 
-  @listen to: @id, local: true, type: "add robot", ({data: robocode}, reply) ->
-    try
-      robot = @hub.add robocode
-      reply "robot added", robot.id
-    catch e
-      reply "error", e
+  @listen to: @id, local: true, type: "add robot", ({id: msgid, data: robocode}, reply) ->
+    @hub.add robocode, msgid
 
-  @listen to: @id, local: true, type: "remove robot", ({data: id}, reply) ->
-    if @hub.remove id
-      reply "robot stopped", id
-    else
-      reply "error", {id, msg: "no such robot"}
+  @listen to: @id, local: true, type: "remove robot", ({id: msgid, data: id}, reply) ->
+    @hub.remove id, msgid
 
 
 class Hub
@@ -46,16 +39,32 @@ class Hub
     nextTick =>
       robot.receive msg for id, robot of @robots when robot isnt source
 
-  add: (robocode) ->
-    robot = new Robot this, robocode
-    @robots[robot.id] = robot
-    return robot
+  add: (robocode, msgid) ->
+    try
+      robot = new Robot this, robocode
+      @robots[robot.id] = robot
+      
+      @hubbot?.transmit type: "robot added", re: msgid, data: {id: robot.id, name: robot.name, info: robot.info}
 
-  remove: (robot) ->
+      return robot
+
+    catch e
+      @hubbot?.transmit type: "error", re: msgid, data: e
+      return
+
+
+  remove: (robot, msgid) ->
     robot = @robots[robot] if typeof robot is "string"
     robot?.remove()
-    delete @robots[robot.id]
-    robot
+    if @robots[robot.id]
+      delete @robots[robot.id]
+
+      @hubbot?.transmit type: "robot stopped", re: msgid, data: robot.id
+      return robot
+    else
+      @hubbot?.transmit type: "error", re: msgid, data: {id: robot.id, msg: "no such robot"}
+      return
+
 
   # This loads a robot given its name, or an array of robots, or an object of robot dependancies.
   load: (robots, callback) ->

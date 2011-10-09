@@ -56,7 +56,6 @@ container.append messages
     scroll = (container.scrollTop() + container.height() == container[0].scrollHeight)
 
     klass = if (me? and user is me) then "me" else "other"
-    console.log "me", me, "user", user, "klass", klass
     messages.append "<div class='message #{klass}'>#{message}</div>"
     
     container.scrollTop container[0].scrollHeight if scroll

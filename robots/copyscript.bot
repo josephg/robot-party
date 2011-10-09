@@ -2,8 +2,8 @@
   local: true
 
 @listen local: true, type: "copy robot", ({data: {fromhub, tohub, id}}, reqreply) ->
-  @transmit "get robot", id, to: fromhub, local: false, ({data: code}) ->
-    @transmit "add robot", code, to: tohub, ({type, newid}) ->
+  @transmit type: "get robot", local: false, to: fromhub, data: id, ({data: code}) ->
+    @transmit type: "add robot", to: tohub, data: code, ({type, newid}) ->
       if type is "error"
         reqreply "error", newid
       else

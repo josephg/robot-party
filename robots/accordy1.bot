@@ -95,7 +95,7 @@ unrenderEty = (panel, id) ->
   @listen local: true, type: "list entities", ({data: etys}) ->
     #return unless local
     for ety in etys
-      renderEty etylist, ety unless ety.info.local
+      renderEty etylist, ety unless ety.info?.local
       renderEty detail, ety if ety.hub is detailHub
       renderEty local, ety if ety.hub is localHub
             

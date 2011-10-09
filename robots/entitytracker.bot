@@ -7,14 +7,17 @@
 @transmit "handling display for type", "list robots"
 @transmit "handling display for type", "I have robots"
 
-@listen "who reply", ({from, data: {name, hub}}) ->
-  @transmit "list entities", [{name, id: from, hub, info:{}}]
-
 @listen "I have robots", ({from, data: robots}) ->
   robot.hub = from for robot in robots
   @transmit "list entities", robots
 
+@listen "robot added", ({from: hub, data: {id, name, info}}) ->
+  @transmit "list entities", [{id, name, info, hub}]
+
+@listen "user nickname", ({local, user: oldname, data: newname}) ->
+  @transmit "list entities", [{id, name, info, hub}]
+  @
+
 setTimeout =>
-  @transmit type:"who", local:false
   @transmit type:"list robots", local:false
 , 200
