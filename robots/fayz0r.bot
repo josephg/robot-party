@@ -13,32 +13,32 @@ bayeux.attach app
 app.listen 4321
 
 bayeux.addExtension
-	incoming: (message, callback) ->
-#		console.warn (new Date()).getSeconds(), message
-#		if message.data?
-#			message.data.faye = message.clientId
-		callback message
+  incoming: (message, callback) ->
+#    console.warn (new Date()).getSeconds(), message
+#    if message.data?
+#      message.data.faye = message.clientId
+    callback message
 
 client = bayeux.getClient()
 
 client.addExtension
-	incoming: (message, callback) ->
-		if message.channel is '/meta/handshake' and message.successful
-			@_clientId = message.clientId
+  incoming: (message, callback) ->
+    if message.channel is '/meta/handshake' and message.successful
+      @_clientId = message.clientId
 
-		else if message.data? and message.clientId is @_clientId
-			message = Object.create message
-			message.data = null
+    else if message.data? and message.clientId is @_clientId
+      message = Object.create message
+      message.data = null
 
-		callback message
+    callback message
 
 @listen (data) ->
-	client.publish '/msg', data
+  client.publish '/msg', data
 
-#	@transmit 'robot connected', s.id
-#		@transmit 'robot disconnected', s.id
+#  @transmit 'robot connected', s.id
+#    @transmit 'robot disconnected', s.id
 
 client.subscribe '/msg', (msg) =>
-	return if msg is null or msg.local
+  return if msg is null or msg.local
   @sendRaw msg
 

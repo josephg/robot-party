@@ -5,8 +5,10 @@ Faye = window?.Faye or require 'faye'
 
 @listen 'federate', ({data:host, local}, reply) =>
   return unless local
-
-  party = new Faye.Client host or '/bayeux', timeout: 20
+  
+  host ||= '/bayeux'
+  console.log 'connecting to', host
+  party = new Faye.Client host, timeout: 20
 
   party.addExtension
     incoming: (message, callback) ->
