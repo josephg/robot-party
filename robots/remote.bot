@@ -1,6 +1,6 @@
 @robot 'remotebot'
-  local: true
-  
+	local: true
+
 @listen (msg) =>
 	unless msg.local
 		@transmit 'remote message send', msg

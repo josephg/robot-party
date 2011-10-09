@@ -1,5 +1,7 @@
 @robot 'fayz0r'
 
+# faye
+
 @defaults.local = true
 
 connect = require 'connect'
@@ -22,8 +24,10 @@ client.addExtension
 		if message.channel is '/meta/handshake' and message.successful
 			@_clientId = message.clientId
 
-		else if message.data?
-			message.data.local = true if message.clientId is @_clientId
+		else if message.data? and message.clientId is @_clientId
+			message = Object.create message
+			message.data = Object.create message.data
+			message.data.echo = true 
 
 		callback message
 
@@ -34,7 +38,7 @@ client.addExtension
 #		@transmit 'robot disconnected', s.id
 
 client.subscribe '/msg', (msg) =>
-	return if msg.local
+	return if msg.echo or msg.local
 	@transmit 'remote message received', msg
 	@transmit 'remote message send', msg
 
