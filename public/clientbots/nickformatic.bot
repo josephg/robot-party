@@ -1,5 +1,5 @@
 @robot "nickformatic"
-@defaults.local = true
+  local: true
 
 me = undefined
 

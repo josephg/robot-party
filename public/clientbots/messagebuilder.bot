@@ -1,5 +1,5 @@
 @robot "messagebuilder"
-@defaults.local = true
+  local: true
 
 escapeHTML = (html) ->
   escaped =

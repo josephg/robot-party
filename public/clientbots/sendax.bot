@@ -1,5 +1,5 @@
 @robot "sendax"
-@defaults.local = true
+  local: true
 
 user = undefined
 

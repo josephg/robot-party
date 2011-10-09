@@ -1,1 +1,2 @@
+@robot 'speak'
 @transmit "rawr", "rawr"

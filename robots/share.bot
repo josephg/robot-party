@@ -1,3 +1,5 @@
+@robot 'share'
+
 client = require('share').client
 
 st = (timeout, fn) -> setTimeout fn, timeout

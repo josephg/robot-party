@@ -1,6 +1,5 @@
 @robot "historinox"
-
-@defaults.local = true
+  local: true
 
 hist = []
 pos = -1

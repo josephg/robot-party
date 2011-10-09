@@ -1,5 +1,5 @@
 @robot "displayinator"
-@defaults.local = true
+  local: true
 
 container = $("<div id='message-container' />")
 messages = $("<div id='messages' />")

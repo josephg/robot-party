@@ -1,5 +1,5 @@
 @robot "layoutron"
-@defaults.local = true
+  local: true
 
 mainarea = $("<div id='mainarea' />")
 $('body').append mainarea

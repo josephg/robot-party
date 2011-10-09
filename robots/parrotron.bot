@@ -1,1 +1,2 @@
+@robot 'parrotron'
 @listen (msg, reply) -> reply type: "I just saw", data: msg

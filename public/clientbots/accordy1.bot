@@ -21,10 +21,12 @@ detailView = (id) ->
   for own id, ety of etys
     renderEty detail, ety
 
-renderEty = (panel, {id, hub, name}) ->
+renderEty = (panel, {id, hub, name, info}) ->
   el = $("<div class='entity' data-eid='#{id}'><img src='http://robohash.org/#{escape(name)}?set=set3&size=50x50' /><div class='name'>#{name}</div></div>")
   el.click ->
     console.log "clicked #{name} with id #{id} and hubid #{hub}"
+    if info.hub
+      detailView id
   panel.append el
 
 unrenderEty = (panel, id) ->
@@ -81,11 +83,9 @@ unrenderEty = (panel, id) ->
   @listen "list entities", ({data: etys}) ->
     #return unless local
     for ety in etys
-      console.log "ety", ety
       if !entities[ety.id]
         renderEty etylist, ety unless ety.info.local
         renderEty detail, ety if ety.hub is detailHub
-        console.log "hub for robot", ety.name, "...", ety.hub, "=?", localHub
         renderEty local, ety if ety.hub is localHub
 
       entities[ety.id] = ety

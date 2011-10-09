@@ -1,6 +1,5 @@
 @robot 'serv-o'
-
-@defaults.local = true
+  local: true
 
 #io = require('socket.io').listen 4321
 

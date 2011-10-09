@@ -1,3 +1,5 @@
+@robot 'roboname'
+
 prefixes = [
     "Gol"
 	"Person"

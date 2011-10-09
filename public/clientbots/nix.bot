@@ -1,4 +1,5 @@
 @robot "nix"
+  local: true
 
 user = undefined
 

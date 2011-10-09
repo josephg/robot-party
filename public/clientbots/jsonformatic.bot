@@ -1,6 +1,5 @@
 @robot 'JSONformatic'
-
-@defaults.local = true
+  local: true
 
 deluge = false
 ignores = {}

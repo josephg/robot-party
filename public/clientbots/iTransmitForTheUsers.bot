@@ -1,4 +1,6 @@
 @robot "iTransmitForTheUsers"
+  local: true
+defaults.local = false
 
 @listen 'usercmd', ({data:cmd, user}, reply) ->
   if match = cmd.match /^transmit\s+(.*)$/

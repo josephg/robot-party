@@ -1,5 +1,5 @@
 @robot 'who3p0'
-@defaults.local = true
+  local: true
 
 me = undefined
 @listen "user nickname", ({local, data: newuser}) ->

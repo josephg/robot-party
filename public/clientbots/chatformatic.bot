@@ -1,6 +1,5 @@
 @robot 'chatformatic'
-
-@defaults.local = true
+  local: true
 
 escapeHTML = (html) -> $('<div/>').text(html).html() if html?
 

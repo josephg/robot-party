@@ -1,1 +1,4 @@
+@robot 'print'
+  local: true
+  
 @listen (data) -> console.log data

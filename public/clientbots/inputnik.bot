@@ -1,5 +1,5 @@
 @robot "inputnik"
-@defaults.local = true
+  local: true
 
 cmd = $("<textarea id='cmd' />")
 cmd.css width: '100%', height: '100%'

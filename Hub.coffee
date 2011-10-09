@@ -4,10 +4,11 @@ nextTick = process?.nextTick || (fn) -> setTimeout fn, 0
 
 hubfn = ->
   @robot 'hubbot'
+    hub: true
 
   @listen "list robots", (msg, reply) ->
     console.log "robots", @hub.robots
-    reply "I have robots", ({id, name, info} for id, {name, info} of @hub.robots when id isnt @id and @hub.robots[id].name)
+    reply "I have robots", ({id, name, info} for id, {name, info} of @hub.robots when @hub.robots[id].name)
 
   @listen to: @id, local: true, type: "get robot", ({data: id}, reply) ->
     reply "code for robot", @hub.robots[id].code if @hub.robots[id]?.code?

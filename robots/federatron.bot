@@ -1,8 +1,7 @@
 @robot 'federatron'
+  local: true
 
 io = require 'socket.io-client'
-
-@defaults.local = true
 
 @listen 'federate', ({data:host, local}, reply) =>
 	return unless local

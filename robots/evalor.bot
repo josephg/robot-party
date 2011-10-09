@@ -1,3 +1,5 @@
+@robot 'evalor'
+
 @listen "eval", ({data}, reply) ->
   try 
     reply "eval result", eval(data)
