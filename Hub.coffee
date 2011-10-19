@@ -8,7 +8,7 @@ expectCalls = (n, callback) ->
 	->
 		remaining--
 		if remaining == 0
-			callback()
+			callback?()
 		else if remaining < 0
 			throw new Error "expectCalls called more than #{n} times"
 

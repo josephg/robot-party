@@ -1,23 +1,35 @@
 @robot 'federatron'
   local: true
 
-io = require 'socket.io-client'
+Faye = window?.Faye or require 'faye'
 
 @listen 'federate', ({data:host, local}, reply) =>
-	return unless local
+  return unless local
+  
+  host ||= '/bayeux'
+  console.log 'connecting to', host
+  party = new Faye.Client host, timeout: 20
 
-	socket = io.connect host
+  party.addExtension
+    incoming: (message, callback) ->
+      if message.channel is '/meta/handshake' and message.successful
+        @_clientId = message.clientId
 
-	socket.on 'error', (e) -> console.log 'federatron', e
+      else if message.data? and message.clientId is @_clientId
+        message = Object.create message
+        message.data = null
 
-	socket.on 'connect', ->
-		reply 'federated'
-		socket.json.send {type:'I federated to you guys'}
+      callback message
 
-	socket.on 'message', (msg) =>
-		return if msg.local
-		@transmit 'remote message received', msg
-		@transmit 'remote message send', msg
+  subscription = party.subscribe '/msg', (msg) =>
+    unless msg is null or msg.local
+      @sendRaw msg
 
-	@listen 'remote message send', ({data}) ->
-		socket.json.send data
+  subscription.callback ->
+    party.publish '/msg', {type:'I federated to you guys'}
+
+  @listen (msg) ->
+    unless msg.local
+      party.publish '/msg', msg
+
+
