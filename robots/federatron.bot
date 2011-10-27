@@ -1,35 +1,25 @@
 @robot 'federatron'
   local: true
 
-Faye = window?.Faye or require 'faye'
+BCSocket = window?.BCSocket or require('browserchannel').BCSocket
+
+#Faye.Transport.WebSocket.isUsable = (_,c) -> c false
 
 @listen 'federate', ({data:host, local}, reply) =>
   return unless local
   
-  host ||= '/bayeux'
-  console.log 'connecting to', host
-  party = new Faye.Client host, timeout: 20
+  host ||= '/channel'
+  party = new BCSocket host, reconnect: true
 
-  party.addExtension
-    incoming: (message, callback) ->
-      if message.channel is '/meta/handshake' and message.successful
-        @_clientId = message.clientId
+  party.onopen = ->
+    console.log 'connected'
 
-      else if message.data? and message.clientId is @_clientId
-        message = Object.create message
-        message.data = null
-
-      callback message
-
-  subscription = party.subscribe '/msg', (msg) =>
-    unless msg is null or msg.local
-      @sendRaw msg
-
-  subscription.callback ->
-    party.publish '/msg', {type:'I federated to you guys'}
+  party.onmessage = (msg) =>
+    return if party.readyState != party.OPEN
+    @sendRaw msg unless msg.local
 
   @listen (msg) ->
     unless msg.local
-      party.publish '/msg', msg
+      party.send msg
 
 

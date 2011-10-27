@@ -13,13 +13,10 @@ app = connect(
     sessions.push session
 
     session.on 'message', (msg) =>
-      console.log "#{session.id} said #{JSON.stringify msg}"
-
       return if msg is null or msg.local
       @sendRaw msg
 
       # broadcast to all other sessions
-      console.log "sending message to #{sessions.length - 1} sessions"
       c.send msg for c in sessions when c != session
 
     session.on 'close', (reason) ->
