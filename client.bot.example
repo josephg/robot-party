@@ -2,7 +2,7 @@
 
 @hub.load
   federatron: =>
-    @transmit 'federate', '/channel'
+    @transmit 'federate'
   layoutron:
     jsonformatic:
       displayinator: [
