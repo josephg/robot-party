@@ -29,13 +29,14 @@ class Messenger
   # reply() takes same arguments as transmit, sets re: header automatically
   listen: (matcher, cb) ->
     [cb, matcher] = [matcher] if not cb?
+    ctx = @ctx or this
     #console.log "messenger #{@mid} listening for", matcher
-    ok = (msg) => cb.call this, msg, @makeReply(msg)
-    @listeners[@lid] = (msg) ->
+    ok = (msg, src) -> cb.call ctx, msg, ctx.makeReply(msg), src
+    @listeners[@lid] = (msg, src) ->
 
-      return ok(msg) if !matcher?
-      return ok(msg) if matcher == msg.type
-      return ok(msg) if typeof matcher is 'function' and matcher(msg)
+      return ok(msg, src) if !matcher?
+      return ok(msg, src) if matcher == msg.type
+      return ok(msg, src) if typeof matcher is 'function' and matcher(msg)
       if typeof matcher is 'object'
         allmatches = true
         for own key, val of matcher
@@ -44,7 +45,7 @@ class Messenger
             allmatches = false
             break
         #console.log "message did match ", matcher if allmatches
-        return ok(msg) if allmatches
+        return ok(msg, src) if allmatches
               
     return @lid++
   
@@ -94,6 +95,7 @@ class Messenger
       @transmit metadata, data, callback
 
   receive: (msg, source) ->
+    #console.log "receive from", source?.id
     msg.data ?= {}
     #console.log "messenger #{@mid} received #{msg.type}:", msg
     listener.call(this, msg, source) for own id, listener of @listeners
@@ -113,8 +115,10 @@ class Children extends Messenger
     @robots = {}
     @bridge on
     @id = @parent.id
+    @ctx = @parent
 
-    @listen (msg, source) =>
+    @listen (msg, reply, source) =>
+      #console.log "children got message from", source
       nextTick =>
         @each (robot) -> robot.receive msg unless robot is source
 
@@ -126,7 +130,8 @@ class Children extends Messenger
   get: (id) -> @robots[id]
 
   add: (robocode, reply) ->
-    reply ||= (args...) => @transmit args...
+    @hasrobots = true
+    reply ||= (args...) => @parent.transmit args...
     try
       robot = new Robot @parent, robocode
       @robots[robot.id] = robot
@@ -137,13 +142,13 @@ class Children extends Messenger
 
     catch e
       reply "error", e
-      #console.log "error!"
+      console.log "error!", e.message
       return
 
   sendRaw: (data) -> @receive data
 
   remove: (robot, reply) ->
-    reply ||= (args...) => @transmit args...
+    reply ||= (args...) => @parent.transmit args...
     robot = @robots[robot] if typeof robot is "string"
     robot?.remove()
     if @robots[robot.id]
@@ -156,9 +161,12 @@ class Children extends Messenger
       return
 
 defaultbot = ->
-  @listen "list robots", (msg, reply) ->
+  list = (msg, reply) ->
     myrobots = ({id, name, info} for id, {name, info} of @children.robots when @children.robots[id].name)
     reply "I have robots", myrobots if myrobots.length > 0
+
+  @listen "list robots", list
+  @children.listen "list robots", list
 
   @children.listen to: @id, type: "get robot", ({data: id}, reply) ->
     reply "code for robot", @children.get(id).code if @children.get(id)?.code?
@@ -204,10 +212,11 @@ class Robot extends Messenger
 
   # SendRaw sends data to children and siblings, if available
   sendRaw: (data) ->
-    #console.log "#{@id} sending", data
+    #console.log "#{@id} sending", data if @children.hasrobots
     if @children._bridge
       @children.receive data, this
     
+    #console.log "about to children.receive", this.id
     @parent?.children.receive data, this
   
   # Deactivate myself and children

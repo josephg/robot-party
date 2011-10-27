@@ -3,7 +3,7 @@
 
 entities = {}
 hubs = {}
-localHub = @hub.id
+localHub = @parent.id
 detailHub = null
 
 accordion = $("<div id='accordion' />")
