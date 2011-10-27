@@ -1,0 +1,35 @@
+@robot 'servo', local: true
+
+@defaults.local = true
+
+connect = require 'connect'
+browserChannel = require('browserchannel').server
+sessions = []
+app = connect(
+  connect.static(__dirname + '/public')
+  browserChannel (session) =>
+    console.log "Client #{session.id} connected"
+
+    sessions.push session
+
+    session.on 'message', (msg) =>
+      console.log "#{session.id} said #{JSON.stringify msg}"
+
+      return if msg is null or msg.local
+      @sendRaw msg
+
+      # broadcast to all other sessions
+      console.log "sending message to #{sessions.length - 1} sessions"
+      c.send msg for c in sessions when c != session
+
+    session.on 'close', (reason) ->
+      console.log "Client #{session.id} disconnected (#{reason})"
+      # Remove the session from the session list
+      sessions = (c for c in sessions when c != session)
+)
+
+app.listen 4321
+
+@listen (msg) ->
+  c.send msg for c in sessions unless msg.local
+
