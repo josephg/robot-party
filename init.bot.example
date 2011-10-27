@@ -1,0 +1,8 @@
+@robot 'init', local:true
+
+@hub.load
+  print:
+    servo: true
+    federatron: =>
+      @transmit 'federate', 'http://josephgentle.com:4321/channel'
+
