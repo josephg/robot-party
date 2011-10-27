@@ -3,19 +3,17 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
   
-    <script src="http://jashkenas.github.com/coffee-script/extras/coffee-script.js"></script>
+    <!-- should use this but it's slow <script src="http://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.1.2/coffee-script.min.js"></script> -->
+    <script src="/coffee-script.min.js"></script>
     <script src="/bayeux/faye.js"></script>
     <script type="text/coffeescript" src="Robot.coffee"></script>
-    <script type="text/coffeescript" src="Hub.coffee"></script>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono' rel='stylesheet' type='text/css'>    
 		<title>ROBOT PARTAY!!!</title>
   </head>
   <body>
-    <script type="text/coffeescript">
-      hub = new Hub
-      $.ajax url: "/robots/ajaxis.bot", success: (data) ->
-        hub.add data
-        hub.load '../client'
+    <script type="text/coffeescript">      
+      $.ajax url: "client.bot", success: (data) ->
+        robot = new Robot data
     </script>
   </body>
 </html>

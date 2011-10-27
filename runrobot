@@ -1,13 +1,24 @@
 #!/usr/bin/env coffee
 fs = require 'fs'
+argv = require('optimist')
+  .usage("Usage: ./runrobot robotname")
+  .demand(1)
+  .argv
 
-Hub = require './Hub'
-hub = new Hub
+Robot = require './Robot'
+robot = new Robot fs.readFileSync(argv._[0], 'utf8')
+###
+  @robot "hub"
 
-hub.add ->
-	process.on 'uncaughtException', (err) =>
-		console.error 'uncaught exception: ' + err.stack
-		try @transmit 'uncaught exception', err, {local:true}
+  that = this
+  @children.add ->
+    process.on 'uncaughtException', (err) =>
+      console.error 'uncaught exception: ' + err.stack
+      try @transmit local: true, type: 'uncaught exception', data: err
 
-hub.add fs.readFileSync('robots/fileLoader.bot', 'utf8')
-hub.load '../init'
+  @children.add fs.readFileSync('robots/fileLoader.bot', 'utf8')
+    
+  @children.add ->
+    @transmit type: "load robot", local: true, data: '../init', ({data: robot}) ->
+      that.children.add robot
+###

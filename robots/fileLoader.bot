@@ -10,4 +10,3 @@ fs = require 'fs'
 			reply 'DOES NOT COMPUTE', "Could not load #{roboname} : #{err}"
 		else
 			reply 'robocode', content
-

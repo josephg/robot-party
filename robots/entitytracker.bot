@@ -18,6 +18,7 @@
   @transmit "list entities", [{id, name, info, hub}]
   @
 
+
 setTimeout =>
   @transmit type:"list robots", local:false
 , 200

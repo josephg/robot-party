@@ -44,6 +44,8 @@ container.append messages
   }
   "
 
+console.log "this is", this
+
 @transmit "want layout", {id: 'message-container', name: "messages"}, ({data:{parent}}) ->
   $(parent).append container
 
