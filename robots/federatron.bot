@@ -8,7 +8,7 @@ BCSocket = window?.BCSocket or require('browserchannel').BCSocket
 @listen 'federate', ({data:host, local}, reply) =>
   return unless local
   
-  host ||= '/channel'
+  host = '/channel' unless typeof host is 'string'
   party = new BCSocket host, reconnect: true
 
   party.onopen = ->

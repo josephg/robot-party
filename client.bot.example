@@ -1,7 +1,8 @@
 @robot 'init', local:true
 
 @hub.load
-  bayeux: null
+  federatron: =>
+    @transmit 'federate'
   layoutron:
     jsonformatic:
       displayinator: [
