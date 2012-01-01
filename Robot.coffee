@@ -136,12 +136,12 @@ class Children extends Messenger
       robot = new Robot @parent, robocode
       @robots[robot.id] = robot
       
-      reply "robot added", id: robot.id, name: robot.name, info: robot.info
+      reply type: "robot added", local: true, data: { id: robot.id, name: robot.name, info: robot.info }
 
       return robot
 
     catch e
-      reply "error", e
+      reply type: "error", local: true, data: e
       console.log "error!", e.message
       return
 
@@ -154,22 +154,23 @@ class Children extends Messenger
     if @robots[robot.id]
       delete @robots[robot.id]
 
-      reply "robot stopped", robot.id
+      reply type: "robot stopped", local: false, data: robot.id
       return robot
     else
-      reply "error", id: robot.id, msg: "no such robot"
+      reply type: "error", local: false, data: { id: robot.id, msg: "no such robot" }
       return
 
 defaultbot = ->
   list = (msg, reply) ->
     myrobots = ({id, name, info} for id, {name, info} of @children.robots when @children.robots[id].name)
-    reply "I have robots", myrobots if myrobots.length > 0
+    if myrobots.length > 0
+      reply type: "I have robots", local: false, data: myrobots 
 
   @listen "list robots", list
   @children.listen "list robots", list
 
   @children.listen to: @id, type: "get robot", ({data: id}, reply) ->
-    reply "code for robot", @children.get(id).code if @children.get(id)?.code?
+    reply type: "code for robot", local: false, data: @children.get(id).code if @children.get(id)?.code?
 
   @children.listen to: @id, type: "add robot", ({id: msgid, data: robocode}, reply) ->
     @children.add robocode, reply

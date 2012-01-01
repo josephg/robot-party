@@ -13,8 +13,8 @@ local    = $("<div id='local' />")
 
 local.droppable drop: (ev, ui) =>
   data = ui.draggable.data()
-  console.log "got drop for id", data.eid, "hub", data.hub, "desthub", localHub
-  @transmit "copy robot", fromhub: data.hub, tohub: localHub, id: data.eid
+  console.log "got drop for id", data.eid, "hub", data.parent, "desthub", localHub
+  @transmit "copy robot", fromhub: data.parent, tohub: localHub, id: data.eid
 
 $(accordion).append etylist, detail, local
 
@@ -26,11 +26,11 @@ detailView = (id) ->
   for own id, ety of etys
     renderEty detail, ety
 
-renderEty = (panel, {id, hub, name, info}) ->
-  el = $("<div class='entity' data-eid='#{id}' data-hub='#{hub}'><img src='http://robohash.org/#{escape(name)}?set=set3&size=50x50' /><div class='name'>#{name}</div></div>").draggable(revert: 'invalid', helper: 'clone', appendTo: 'body')
+renderEty = (panel, {id, parent, name, info}) ->
+  el = $("<div class='entity' data-eid='#{id}' data-parent='#{parent}'><img src='http://robohash.org/#{escape(name)}?set=set3&size=50x50' /><div class='name'>#{name}</div></div>").draggable(revert: 'invalid', helper: 'clone', appendTo: 'body')
   el.click ->
-    console.log "clicked #{name} with id #{id} and hubid #{hub}"
-    if info.hub
+    console.log "clicked #{name} with id #{id} and parent id #{parent}"
+    if hubs[id]
       detailView id
   
   oldel = panel.find("[data-eid='#{id}']")
@@ -96,12 +96,12 @@ unrenderEty = (panel, id) ->
     #return unless local
     for ety in etys
       renderEty etylist, ety unless ety.info?.local
-      renderEty detail, ety if ety.hub is detailHub
-      renderEty local, ety if ety.hub is localHub
+      renderEty detail, ety if ety.parent is detailHub
+      renderEty local, ety if ety.parent is localHub
             
       entities[ety.id] = ety
-      hubs[ety.hub] ||= {}
-      hubs[ety.hub][ety.id] = ety
+      hubs[ety.parent] ||= {}
+      hubs[ety.parent][ety.id] = ety
 
   @listen local: true, type: "delist entities", ({data: ids}) ->
     #return unless local
@@ -109,5 +109,5 @@ unrenderEty = (panel, id) ->
       unrenderEty etylist, id
       unrenderEty detail, id
       unrenderEty local, id
-      delete hubs[ety.hub][id]
+      delete hubs[ety.parent][id]
       delete entities[id]

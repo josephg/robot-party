@@ -8,7 +8,7 @@
 @transmit "handling display for type", "I have robots"
 
 @listen "I have robots", ({from, data: robots}) ->
-  robot.hub = from for robot in robots
+  robot.parent = from for robot in robots
   @transmit "list entities", robots
 
 @listen "robot added", ({from: parent, data: {id, name, info}}) ->
@@ -22,3 +22,7 @@
 setTimeout =>
   @transmit type:"list robots", local:false
 , 200
+
+setInterval =>
+  @transmit type:"list robots", local:false
+, 1000 * 60 * 5
