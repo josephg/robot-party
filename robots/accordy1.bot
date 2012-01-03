@@ -59,6 +59,7 @@ unrenderEty = (panel, id) ->
   }
   #parent {
     width: 100%;
+    height: 80px;
   }
   #etylist {
     width: 100%;
