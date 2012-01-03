@@ -1,0 +1,16 @@
+user = 'anon'
+
+@robot user
+
+@children.bridge out: (data, ok) -> data.user = user; ok data
+
+setUser = (name) =>
+  user = name
+  @name = name
+  @transmit "robot name", name
+
+@transmit {type:'name me', local:false}, ({data}) -> setUser data
+
+@listen 'usercmd', ({data:cmd}, reply) ->
+  if match = cmd.match /nick\s+(.*)$/
+    setUser match[1]

@@ -1,13 +1,6 @@
 @robot "sendax"
   local: true
 
-user = undefined
-
-@listen "user nickname", ({local, user: olduser, data: newuser}) ->
-  return unless local
-
-  user = newuser
-
 @listen "key sent", ({data:{key, alt, ctrl, meta, shift}}, reply) ->
   if key is 13
     if alt or ctrl or meta or shift
@@ -16,8 +9,8 @@ user = undefined
       reply "get input", ({data: value}, reply) ->
         if value[0] == '/'
           @transmit "user input", value
-          @transmit type:"usercmd", user:user, data:value.slice(1)
+          @transmit "usercmd", value.slice(1)
         else if value
           @transmit "user input", value
-          @transmit type:"chat", local:false, user:user, data:value
+          @transmit type:"chat", local:false, data:value
         reply "set input", ""

@@ -109,21 +109,39 @@ class Messenger
 # But they have to be bridged manually the other way
 ##
 
+
 class Children extends Messenger
   constructor: (@parent) ->
     super()
     @robots = {}
     @bridge on
+    #@_bridge =
+      #in: (m, ok) => console.log @parent.name, "bridging in", m.type; ok(m)
+      #out: (m, ok) => console.log @parent.name, "bridging out", m.type; ok(m)
+      #in: (m, ok) => console.log "bridging in", m; ok(m)
+      #out: (m, ok) => console.log "bridging out", m; ok(m)
     @id = @parent.id
     @ctx = @parent
 
-    @listen (msg, reply, source) =>
-      #console.log "children got message from", source
-      nextTick =>
-        @each (robot) -> robot.receive msg unless robot is source
 
 
-  bridge: (x) -> @_bridge = x
+  distribute: (data, source) ->
+    nextTick =>
+      @receive data unless @parent is source
+      @each (robot) => robot.distribute data, @parent unless robot is source
+
+  bridge: (bridge) ->
+    idtc = (x, f) -> f(x) # Identity callback
+
+    if typeof bridge is 'object'
+      @_bridge.in = bridge.in or idtc if bridge.in isnt undefined
+      @_bridge.out = bridge.out or idtc if bridge.out isnt undefined
+    else if bridge
+      @_bridge = {in: idtc, out: idtc}
+    else
+      @_bridge = {in: (->), out: (->)}
+      
+    
     
   each: (fn) -> fn robot for id, robot of @robots
 
@@ -145,7 +163,7 @@ class Children extends Messenger
       console.log "error!", e.message
       return
 
-  sendRaw: (data) -> @receive data
+  sendRaw: (data) -> @distribute data, @parent
 
   remove: (robot, reply) ->
     reply ||= (args...) => @parent.transmit args...
@@ -163,6 +181,8 @@ class Children extends Messenger
 defaultbot = ->
   list = (msg, reply) ->
     myrobots = ({id, name, info} for id, {name, info} of @children.robots when @children.robots[id].name)
+    myrobots.push {@id, @name, @info} if @info.root
+
     if myrobots.length > 0
       reply type: "I have robots", local: false, data: myrobots 
 
@@ -189,11 +209,6 @@ class Robot extends Messenger
     @info = {}
     @id = randomId()
 
-
-    @listen (msg) ->
-      if @children._bridge
-        @children.receive msg
-
     if typeof @code is 'string'
       @fn = eval "(function(){" + coffeescript.compile(@code, bare: true) + "})"
     else
@@ -211,14 +226,16 @@ class Robot extends Messenger
     @defaults.local = true if @info.local
     @defaults.robot = name
 
+  distribute: (data, source) ->
+    @receive data unless source is this
+    @children._bridge.in data, (data) => @children.distribute data, source
+    if @parent and @parent isnt source
+      #console.log @name, "has parent!"
+      @parent.children._bridge.out data, (data) => @parent.distribute data, this
+
   # SendRaw sends data to children and siblings, if available
   sendRaw: (data) ->
-    #console.log "#{@id} sending", data if @children.hasrobots
-    if @children._bridge
-      @children.receive data, this
-    
-    #console.log "about to children.receive", this.id
-    @parent?.children.receive data, this
+    @distribute data, this
   
   # Deactivate myself and children
   remove: ->

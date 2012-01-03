@@ -21,17 +21,23 @@ $(accordion).append etylist, detail, local
 
 detailView = (id) ->
   detailHub = id
-  detail.html ""
+  robot = entities[id]
+  detail.html "<div>#{robot.name}</div><div>Parent</div><div id='parent'></div><div>Children</div><div id='children'></div>"
+  children = $('#children')
+  parent = $('#parent')
+  
+  if entities[robot.parent]
+    renderEty parent, entities[robot.parent]
   etys = hubs[id] or {}
   for own id, ety of etys
-    renderEty detail, ety
+    renderEty children, ety
 
 renderEty = (panel, {id, parent, name, info}) ->
-  el = $("<div class='entity' data-eid='#{id}' data-parent='#{parent}'><img src='http://robohash.org/#{escape(name)}?set=set3&size=50x50' /><div class='name'>#{name}</div></div>").draggable(revert: 'invalid', helper: 'clone', appendTo: 'body')
+  el = $("<div class='entity' data-eid='#{id}' data-parent='#{parent}' title='#{name}'><img src='http://robohash.org/#{escape(name)}?set=set3&size=50x50' /><div class='name'>#{name}</div></div>").draggable(revert: 'invalid', distance: 15, helper: 'clone', appendTo: 'body')
   el.click ->
     console.log "clicked #{name} with id #{id} and parent id #{parent}"
-    if hubs[id]
-      detailView id
+    #if hubs[id]
+    detailView id
   
   oldel = panel.find("[data-eid='#{id}']")
   if oldel.length
@@ -50,6 +56,9 @@ unrenderEty = (panel, id) ->
     border-left: 1px solid black;
     width: 100%;
     height: 100%;
+  }
+  #parent {
+    width: 100%;
   }
   #etylist {
     width: 100%;
@@ -81,6 +90,7 @@ unrenderEty = (panel, id) ->
     width: 100%;
     height: 40%;
     border-bottom: 1px solid black;
+    overflow-y: scroll;
   }
   #local {
     width: 100%;
@@ -91,6 +101,13 @@ unrenderEty = (panel, id) ->
 
 @transmit "want layout", {name: "sidebar"}, ({data:{parent}}) ->
   $(parent).append accordion
+
+  @listen local: true, type: "rename entity", ({data: {id, name}}) ->
+    if ety = entities[id]
+      entities[id].name = name
+      renderEty etylist, ety unless ety.info?.local
+      renderEty detail, ety if ety.parent is detailHub
+      renderEty local, ety if ety.parent is localHub
 
   @listen local: true, type: "list entities", ({data: etys}) ->
     #return unless local
