@@ -6,6 +6,8 @@ hubs = {}
 localHub = @parent.id
 detailHub = null
 
+me = this
+
 accordion = $("<div id='accordion' />")
 etylist = $("<div id='etylist' />")
 detail   = $("<div id='detail' />")
@@ -19,13 +21,28 @@ local.droppable drop: (ev, ui) =>
 $(accordion).append etylist, detail, local
 
 
+# Maybe make this a reply to the editbox command?
+@listen "editbox saved", (data:{id, text: code}) ->
+  robot = entities[id]
+  if robot
+    @transmit to: robot.parent, type: "remove robot", data: id, ({type}) ->
+      if type isnt "error"
+        @transmit to: robot.parent, type: "add robot", data: code
+
+
 detailView = (id) ->
   detailHub = id
   robot = entities[id]
-  detail.html "<div>#{robot.name}</div><div>Parent</div><div id='parent'></div><div>Children</div><div id='children'></div>"
+  detail.html "<div>#{robot.name}</div><button id='edit'>edit</button><div>Parent</div><div id='parent'></div><div>Children</div><div id='children'></div>"
   children = $('#children')
   parent = $('#parent')
   
+  $('#edit').click ->
+    me.transmit to: robot.parent, type: "get robot", data: id, ({type, data: code}) ->
+      if type isnt "error"
+        me.transmit "editbox", title: robot.name, text: code, id: id
+    
+
   if entities[robot.parent]
     renderEty parent, entities[robot.parent]
   etys = hubs[id] or {}

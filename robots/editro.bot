@@ -1,0 +1,27 @@
+@robot 'editro'
+  local: true
+
+me = this
+
+@listen "editbox", ({data:{text, title, id}}) ->
+  dialog = $("<div>")
+
+  @transmit "want layout", {name: "sidebar"}, ({data:{parent}}) ->
+    $(parent).append dialog
+    dialog.dialog(
+      width: 640
+      height: 480
+      resize: -> editor.resize()
+      title: title if title
+      buttons:
+        save: ->
+          me.transmit "editbox saved", {title, id, text: editor.getSession().getValue()}
+    )
+
+    editor = ace.edit dialog[0]
+    editor.setTheme "ace/theme/textmate"
+    session = editor.getSession()
+    session.setMode new (require("ace/mode/coffee").Mode)
+    session.setTabSize 2
+    session.setUseSoftTabs true
+    session.setValue text if text
