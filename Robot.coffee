@@ -104,9 +104,6 @@ class Messenger
 
 ##
 # Children represents a list of robots 'inside' a parent
-# They represent, in an abstract sense, a tighter scope than the robot they are inside
-# Messages, by default, are bridged from the looser scope (siblings) to a tighter scope (children)
-# But they have to be bridged manually the other way
 ##
 
 
@@ -114,12 +111,7 @@ class Children extends Messenger
   constructor: (@parent) ->
     super()
     @robots = {}
-    @bridge on
-    #@_bridge =
-      #in: (m, ok) => console.log @parent.name, "bridging in", m.type; ok(m)
-      #out: (m, ok) => console.log @parent.name, "bridging out", m.type; ok(m)
-      #in: (m, ok) => console.log "bridging in", m; ok(m)
-      #out: (m, ok) => console.log "bridging out", m; ok(m)
+    @count = 0
     @id = @parent.id
     @ctx = @parent
 
@@ -129,43 +121,32 @@ class Children extends Messenger
     nextTick =>
       @receive data unless @parent is source
       @each (robot) => robot.distribute data, @parent unless robot is source
-
-  bridge: (bridge) ->
-    idtc = (x, f) -> f(x) # Identity callback
-
-    if typeof bridge is 'object'
-      @_bridge.in = bridge.in or idtc if bridge.in isnt undefined
-      @_bridge.out = bridge.out or idtc if bridge.out isnt undefined
-    else if bridge
-      @_bridge = {in: idtc, out: idtc}
-    else
-      @_bridge = {in: (->), out: (->)}
-      
-    
-    
+          
   each: (fn) -> fn robot for id, robot of @robots
 
   get: (id) -> @robots[id]
 
   add: (robocode, reply) ->
+    @count++
     @hasrobots = true
     reply ||= (args...) => @parent.transmit args...
     try
       robot = new Robot @parent, robocode
       @robots[robot.id] = robot
       
-      reply type: "robot added", local: true, data: { id: robot.id, name: robot.name, info: robot.info }
+      reply type: "robot added", local: false, data: { id: robot.id, name: robot.name, info: robot.info }
 
       return robot
 
     catch e
-      reply type: "error", local: true, data: e
+      reply type: "error", data: e
       console.log "error!", e.message
       return
 
   sendRaw: (data) -> @distribute data, @parent
 
   remove: (robot, reply) ->
+    @count--
     reply ||= (args...) => @parent.transmit args...
     robot = @robots[robot] if typeof robot is "string"
     robot?.remove()
@@ -175,7 +156,7 @@ class Children extends Messenger
       reply type: "robot stopped", local: false, data: robot.id
       return robot
     else
-      reply type: "error", local: false, data: { id: robot.id, msg: "no such robot" }
+      reply type: "error", data: { id: robot.id, msg: "no such robot" }
       return
 
 defaultbot = ->
@@ -187,15 +168,15 @@ defaultbot = ->
       reply type: "I have robots", local: false, data: myrobots 
 
   @listen "list robots", list
-  @children.listen "list robots", list
+  #@children.listen "list robots", list
 
-  @children.listen to: @id, type: "get robot", ({data: id}, reply) ->
+  @listen to: @id, type: "get robot", ({data: id}, reply) ->
     reply type: "code for robot", local: false, data: @children.get(id).code if @children.get(id)?.code?
 
-  @children.listen to: @id, type: "add robot", ({id: msgid, data: robocode}, reply) ->
+  @listen to: @id, trusted: true, type: "add robot", ({id: msgid, data: robocode}, reply) ->
     @children.add robocode, reply
 
-  @children.listen to: @id, type: "remove robot", ({id: msgid, data: id}, reply) ->
+  @listen to: @id, trusted: true, type: "remove robot", ({id: msgid, data: id}, reply) ->
     @children.remove id, reply
 
 
@@ -208,6 +189,7 @@ class Robot extends Messenger
     @defaults = {}
     @info = {}
     @id = randomId()
+    @bridge on
 
     if typeof @code is 'string'
       @fn = eval "(function(){" + coffeescript.compile(@code, bare: true) + "})"
@@ -226,12 +208,32 @@ class Robot extends Messenger
     @defaults.local = true if @info.local
     @defaults.robot = name
 
+  bridge: (bridge) ->
+    idtc = (x, f) -> f(x) # Identity callback
+
+    if typeof bridge is 'object'
+      @_bridge.in = bridge.in or (->) if bridge.in isnt undefined
+      @_bridge.out = bridge.out or (->) if bridge.out isnt undefined
+    else if bridge
+      @_bridge = {in: idtc, out: idtc}
+    else
+      @_bridge = {in: (->), out: (->)}
+
   distribute: (data, source) ->
     @receive data unless source is this
-    @children._bridge.in data, (data) => @children.distribute data, source
-    if @parent and @parent isnt source
-      #console.log @name, "has parent!"
-      @parent.children._bridge.out data, (data) => @parent.distribute data, this
+    #TODO: clean this up
+    if @parent
+      if @parent is source
+        @_bridge.in data, (data) => @children.distribute data, source
+      else if this is source
+        @parent.distribute data, this
+        @children.distribute data, source
+      else
+        @_bridge.out data, (data) => @parent.distribute data, this
+        @children.distribute data, source
+    else
+      @children.distribute data, source
+      
 
   # SendRaw sends data to children and siblings, if available
   sendRaw: (data) ->

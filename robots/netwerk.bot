@@ -1,0 +1,61 @@
+@robot 'netwerk'
+  local: true
+
+messages = {}
+registered = incoming: 0, outgoing: 0
+
+me = this
+
+randomId = (length = 10) ->
+  chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-="
+  (chars[Math.floor(Math.random() * chars.length)] for x in [0...length]).join('')
+
+maybepass = (id) ->
+  if messages[id].topass is 0
+    #console.log "distributing", id, messages[id]
+    messages[id].pass messages[id].msg
+    delete messages[id]
+
+@bridge out: off, in: (msg, pass) ->
+  return pass msg if msg.local
+
+  id = randomId()
+  messages[id] =
+    msg: msg
+    topass: registered.outgoing
+    pass: (msg) ->
+      me.children.transmit "send message", msg
+
+  me.children.transmit type: "outgoing message", id: id, data: msg
+  maybepass id
+
+
+@children.listen "incoming message", ({id, data:msg}) ->
+  messages[id] =
+    msg: msg
+    topass: registered.incoming
+    pass: (msg) => @parent.distribute msg, this
+  maybepass id
+
+
+@children.listen "register incoming", ->
+  registered.incoming++
+
+@children.listen "register outgoing", ->
+  registered.outgoing++
+
+
+# Maybe beef up reply handling for this
+@children.listen "pass with changes", ({data:{id, changes}}) ->
+  console.log "!!!!! got pass with changes", id, changes
+  if messages[id]
+    messages[id].msg[key] = val for key, val of changes
+    messages[id].topass--
+    maybepass id
+
+@children.listen "pass", ({data:id}) ->
+  if messages[id]
+    messages[id].topass--
+    maybepass id
+
+

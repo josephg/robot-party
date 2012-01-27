@@ -7,7 +7,8 @@ BCSocket = window?.BCSocket or require('browserchannel').BCSocket
 
 @listen 'federate', ({data:host, local}, reply) =>
   return unless local
-  
+  console.log "FEDERATE FEDERATE FEDERATE"
+
   host = '/channel' unless typeof host is 'string'
   party = new BCSocket host, reconnect: true
 
@@ -16,9 +17,11 @@ BCSocket = window?.BCSocket or require('browserchannel').BCSocket
 
   party.onmessage = (msg) =>
     return if party.readyState != party.OPEN
-    @sendRaw msg unless msg.local
+    @transmit 'incoming message', msg unless msg.local
+    #console.log 'INCOMING MESSAGE', msg.id, msg
 
-  @listen (msg) ->
+  @listen 'send message', ({data: msg}) ->
+    console.log "got send message", msg
     unless msg.local
       party.send msg
 

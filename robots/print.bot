@@ -1,4 +1,4 @@
 @robot 'printbot'
   local: true
 
-@listen (data) -> console.log data
+@listen (data) -> console.log data.type, data

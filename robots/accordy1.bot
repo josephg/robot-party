@@ -8,6 +8,8 @@ detailHub = null
 
 me = this
 
+escapeHTML = (html) -> $('<div/>').text(html).html() if html?
+
 accordion = $("<div id='accordion' />")
 etylist = $("<div id='etylist' />")
 detail   = $("<div id='detail' />")
@@ -25,20 +27,20 @@ $(accordion).append etylist, detail, local
 @listen "editbox saved", (data:{id, text: code}) ->
   robot = entities[id]
   if robot
-    @transmit to: robot.parent, type: "remove robot", data: id, ({type}) ->
+    @transmit to: robot.parent, type: "remove robot", trusted: true, local: false, data: id, ({type}) ->
       if type isnt "error"
-        @transmit to: robot.parent, type: "add robot", data: code
+        @transmit to: robot.parent, type: "add robot", trusted: true, local: false, data: code
 
 
 detailView = (id) ->
   detailHub = id
   robot = entities[id]
-  detail.html "<div>#{robot.name}</div><button id='edit'>edit</button><div>Parent</div><div id='parent'></div><div>Children</div><div id='children'></div>"
+  detail.html "<div>#{escapeHTML robot.name}</div><button id='edit'>edit</button><div>Parent</div><div id='parent'></div><div>Children</div><div id='children'></div>"
   children = $('#children')
   parent = $('#parent')
   
   $('#edit').click ->
-    me.transmit to: robot.parent, type: "get robot", data: id, ({type, data: code}) ->
+    me.transmit to: robot.parent, local: false, type: "get robot", data: id, ({type, data: code}) ->
       if type isnt "error"
         me.transmit "editbox", title: robot.name, text: code, id: id
     
@@ -50,7 +52,7 @@ detailView = (id) ->
     renderEty children, ety
 
 renderEty = (panel, {id, parent, name, info}) ->
-  el = $("<div class='entity' data-eid='#{id}' data-parent='#{parent}' title='#{name}'><img src='http://robohash.org/#{escape(name)}?set=set3&size=50x50' /><div class='name'>#{name}</div></div>").draggable(revert: 'invalid', distance: 15, helper: 'clone', appendTo: 'body')
+  el = $("<div class='entity' data-eid='#{id}' data-parent='#{parent}' title='#{name}'><img src='http://robohash.org/#{escape(name)}?set=set3&size=50x50' /><div class='name'>#{escapeHTML name}</div></div>").draggable(revert: 'invalid', distance: 15, helper: 'clone', appendTo: 'body')
   el.click ->
     console.log "clicked #{name} with id #{id} and parent id #{parent}"
     #if hubs[id]
