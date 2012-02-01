@@ -19,30 +19,40 @@ dqRh3rcNvpY6BKJqFapda1DjdcncZECMizT/GMrc1w==
 -----END RSA PRIVATE KEY-----
 """
 
-rsa = new RSAKey()
-rsa.readPrivateKeyFromPEMString privateKey
-sign = (text) -> hex2b64 rsa.signString text, 'sha256'
+crypto = require? 'crypto'
+  
+if crypto
+  #priv = crypto.createCredentials key: privateKey
+  sign = (text) ->
+    signer = crypto.createSign 'RSA-SHA256'
+    signer.update text
+    signer.sign privateKey, 'base64'
+
+else
+  rsa = new RSAKey()
+  rsa.readPrivateKeyFromPEMString privateKey
+  sign = (text) -> hex2b64 rsa.signString text, 'sha256'
 
 publicKey = """
------BEGIN CERTIFICATE-----
-MIIBvTCCASYCCQD55fNzc0WF7TANBgkqhkiG9w0BAQUFADAjMQswCQYDVQQGEwJK
-UDEUMBIGA1UEChMLMDAtVEVTVC1SU0EwHhcNMTAwNTI4MDIwODUxWhcNMjAwNTI1
-MDIwODUxWjAjMQswCQYDVQQGEwJKUDEUMBIGA1UEChMLMDAtVEVTVC1SU0EwgZ8w
-DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBANGEYXtfgDRlWUSDn3haY4NVVQiKI9Cz
-Thoua9+DxJuiseyzmBBe7Roh1RPqdvmtOHmEPbJ+kXZYhbozzPRbFGHCJyBfCLzQ
-fVos9/qUQ88u83b0SFA2MGmQWQAlRtLy66EkR4rDRwTj2DzR4EEXgEKpIvo8VBs/
-3+sHLF3ESgAhAgMBAAEwDQYJKoZIhvcNAQEFBQADgYEAEZ6mXFFq3AzfaqWHmCy1
-ARjlauYAa8ZmUFnLm0emg9dkVBJ63aEqARhtok6bDQDzSJxiLpCEF6G4b/Nv/M/M
-LyhP+OoOTmETMegAVQMq71choVJyOFE5BtQa6M/lCHEOya5QUfoRF2HF9EjRF44K
-3OK+u3ivTSj3zwjtpudY5Xo=
------END CERTIFICATE-----
+-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDRhGF7X4A0ZVlEg594WmODVVUI
+iiPQs04aLmvfg8SborHss5gQXu0aIdUT6nb5rTh5hD2yfpF2WIW6M8z0WxRhwicg
+Xwi80H1aLPf6lEPPLvN29EhQNjBpkFkAJUbS8uuhJEeKw0cE49g80eBBF4BCqSL6
+PFQbP9/rByxdxEoAIQIDAQAB
+-----END PUBLIC KEY-----
 """
-#3OK+u3ivTSj3zwjtpudY5Xo=
 
+if crypto
+  verify = (text, sig) ->
+    verifier = crypto.createVerify 'RSA-SHA256'
+    verifier.update text
+    !! verifier.verify publicKey, sig, 'base64'
 
-cert = new X509();
-cert.readCertPEM publicKey
-verify = (msg, sig) -> cert.subjectPublicKeyRSA.verifyString msg, b64tohex sig
+else
+  cert = new RSAKey()
+  cert.readPublicKeyFromPEMString publicKey
+
+  verify = (msg, sig) -> cert.verifyString msg, b64tohex sig
 
 @transmit "register outgoing"
 
@@ -50,13 +60,17 @@ verify = (msg, sig) -> cert.subjectPublicKeyRSA.verifyString msg, b64tohex sig
   msg = data
   if msg.trusted
     nonce = (new Date).getTime()
+
+    #FIXME: should dupe objects before they hit @listen
     msg.nonce = nonce
     signature = sign JSON.stringify msg
     reply "pass with changes", {id, changes: {signature, nonce}}
   else
     reply "pass", id
 
-
+if typeof window isnt "undefined"
+  window.sign = sign
+  window.verify = verify
 
 @transmit "register incoming"
 
@@ -66,6 +80,11 @@ verify = (msg, sig) -> cert.subjectPublicKeyRSA.verifyString msg, b64tohex sig
     signature = msg.signature
     delete msg.signature
     result = verify (JSON.stringify msg), signature
+
+    #console.log "OH SHIT SON LOOKS LIKE THINGS ABOUT TO GET VERIFIED", result
+
+    #FIXME: should dupe objects before they hit @listen
+    msg.signature = signature
 
     reply "pass with changes", {id, changes: {verify: result, trusted: result}}
   else if msg.trusted  

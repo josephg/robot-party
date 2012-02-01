@@ -34,7 +34,7 @@ container.append messages
     word-break: break-all;
   }
   .message .text.json {
-    color: blue;
+    color: #4155A6;
   }
   .message .text.status {
     color: green;

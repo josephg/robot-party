@@ -14,7 +14,7 @@ escapeHTML = (html) ->
 
 nl2br = (html) -> html.replace /\n/g, "<br />"
 
-@listen "build message", ({user, data: {source, sourceclass, text, textclass}}) ->
+@listen "build message", ({user, data: {source, sourceclass, text, textclass, html}}) ->
   source ||= ''
   text ||= ''
   sourceclass ||= ''
@@ -22,6 +22,6 @@ nl2br = (html) -> html.replace /\n/g, "<br />"
 
   message = "
     <div class='source #{sourceclass}'>#{escapeHTML source}</div>
-  	<div class='text #{textclass}'>#{nl2br (escapeHTML text)}</div>
+  	<div class='text #{textclass}'>#{html or (nl2br escapeHTML text)}</div>
   "
   @transmit type:"display message", user:user, data:message

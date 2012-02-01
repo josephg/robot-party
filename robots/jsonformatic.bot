@@ -4,8 +4,94 @@
 deluge = false
 ignores = {}
 
+
+@transmit "add style", "
+  .json.key {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 0.5em;
+  }
+  .json.value {
+    display: inline-block;
+  }
+  div.json.key {
+    margin-left: 1em;
+  }
+  .json.number {
+    color: #D67B13;
+  }
+  .json.undefined {
+    color: #919191;
+  }
+  .json.null {
+    color: #919191;
+  }
+  .json.boolean {
+    color: #FA6B8F;
+  }
+  .json.string {
+    color: #4AA150;
+  }
+  details {
+    padding-left: 1em;
+  }
+  summary {
+    margin-left: -1em;
+  }
+  summary > div {
+    display: inline-block
+  }
+"
+
 @listen "handling display for type", ({data:type}) ->
   ignores[type] = true
+
+
+nl2br = (html) -> html.replace /\n/g, "<br />"
+escapeHTML = (html) -> $('<div/>').text(html).html() if html?
+
+getClass = (obj) ->
+  return 'array' if obj?.constructor is Array
+  
+  return typeof obj  
+
+msg2html = (obj) ->
+  #maybedata = JSON.stringify obj.data
+  #maybedata = maybedata.substring(0, 47) + '...' if maybedata.length > 50
+    
+
+  
+  maybedata = ((json2html obj.data).join('') if typeof obj.data isnt 'object' and (typeof obj.data isnt 'string' or obj.data.length < 50))
+  "<details><summary>#{obj.type} #{maybedata or ''}</summary>#{(json2html obj).join('')}</details>"
+
+json2html = (obj) ->
+  cls = getClass obj
+  html = ["<div class='json #{cls}'>"]
+  switch cls
+    when 'object'
+      for key, val of obj
+        html.push "<div class='json keypair'>"
+        if (typeof val is 'object' and obj.constructor isnt Array) or (typeof val is 'string' and val.length > 50)
+          detail = "<div class='json string'>#{val.substring(0, 47) + '...'}</div>" if typeof val is 'string' and val.length > 50
+          html.push "<details class='json key'><summary>#{escapeHTML key}: #{detail or ''}</summary><div class='json value'>"
+          html.push (json2html val)...
+          html.push "</details>"
+        else
+          html.push "<div class='json key'>#{escapeHTML key}:</div><div class='json value'>"
+          html.push (json2html val)...
+          html.push "</div>"        
+        html.push "</div>"
+    when 'array'
+      for key, val of obj
+        html.push (json2html val)...
+    when 'string'
+      html.push nl2br obj
+    when 'undefined'
+      html.push 'undefined'
+    else
+      html.push escapeHTML obj
+  html.push "</div>"
+  return html
 
 @listen (msg) ->
   return if msg.type == "display message"
@@ -14,11 +100,14 @@ ignores = {}
   from = (x for x in [msg.user, msg.robot] when x?).join(" + ") || "anonybot"
   sourceclass = "local" if msg.local
 
+
+
+
   @transmit "build message",
   	sourceclass: sourceclass,
   	source: from,
   	textclass: 'json',
-  	text: JSON.stringify msg,
+  	html: msg2html msg,
   	{user: msg.user}
 
 

@@ -220,19 +220,20 @@ class Robot extends Messenger
       @_bridge = {in: (->), out: (->)}
 
   distribute: (data, source) ->
-    @receive data unless source is this
-    #TODO: clean this up
-    if @parent
-      if @parent is source
-        @_bridge.in data, (data) => @children.distribute data, source
-      else if this is source
-        @parent.distribute data, this
-        @children.distribute data, source
+    nextTick =>
+      @receive data unless source is this
+      #TODO: clean this up
+      if @parent
+        if @parent is source
+          @_bridge.in data, (data) => @children.distribute data, source
+        else if this is source
+          @parent.distribute data, this
+          @children.distribute data, source
+        else
+          @_bridge.out data, (data) => @parent.distribute data, this
+          @children.distribute data, source
       else
-        @_bridge.out data, (data) => @parent.distribute data, this
         @children.distribute data, source
-    else
-      @children.distribute data, source
       
 
   # SendRaw sends data to children and siblings, if available

@@ -47,7 +47,7 @@ maybepass = (id) ->
 
 # Maybe beef up reply handling for this
 @children.listen "pass with changes", ({data:{id, changes}}) ->
-  console.log "!!!!! got pass with changes", id, changes
+  #console.log "!!!!! got pass with changes", id, changes
   if messages[id]
     messages[id].msg[key] = val for key, val of changes
     messages[id].topass--

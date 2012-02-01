@@ -14,6 +14,9 @@
 @listen "robot added", ({from: parent, data: {id, name, info}}) ->
   @transmit "list entities", [{id, name, info, parent}]
   
+@listen "robot stopped", ({data: id}) ->
+  @transmit "delist entities", [id]
+
 @listen "robot name", ({from, data: name}) ->
   @transmit "rename entity", {id: from, name}
 

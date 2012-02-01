@@ -65,7 +65,10 @@ renderEty = (panel, {id, parent, name, info}) ->
     panel.append el
 
 unrenderEty = (panel, id) ->
-  panel.find("[data-eid='#{id}]']").remove()
+  console.log "unredering", id, "from", panel
+  foo = panel.find("[data-eid='#{id}']")
+  console.log "found", foo
+  foo.remove()
 
 @transmit "handling display for type", "list entities"
 @transmit "handling display for type", "delist entities"
@@ -141,10 +144,12 @@ unrenderEty = (panel, id) ->
       hubs[ety.parent][ety.id] = ety
 
   @listen local: true, type: "delist entities", ({data: ids}) ->
+    console.log "DELISTING", ids
     #return unless local
     for id in ids
-      unrenderEty etylist, id
-      unrenderEty detail, id
-      unrenderEty local, id
-      delete hubs[ety.parent][id]
-      delete entities[id]
+      if ety = entities[id]
+        unrenderEty etylist, id
+        unrenderEty detail, id
+        unrenderEty local, id
+        delete hubs[ety.parent][id]
+        delete entities[id]

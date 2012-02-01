@@ -1,4 +1,5 @@
-@robot 'servo', local: true
+@robot 'servo',
+  local: true
 
 @defaults.local = true
 
@@ -14,7 +15,7 @@ app = connect(
 
     session.on 'message', (msg) =>
       return if msg is null or msg.local
-      @sendRaw msg
+      @transmit 'incoming message', msg
 
       # broadcast to all other sessions
       c.send msg for c in sessions when c != session
@@ -27,6 +28,10 @@ app = connect(
 
 app.listen 4321
 
-@listen (msg) ->
+# Proxy incoming messages from other network channels
+@listen 'incoming message', ({data: msg}) ->
+  c.send msg for c in sessions unless msg.local
+
+@listen 'send message', ({data: msg}) ->
   c.send msg for c in sessions unless msg.local
 
