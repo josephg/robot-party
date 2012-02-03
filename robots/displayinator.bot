@@ -17,46 +17,15 @@ container.append messages
   .message {
     display: table-row;
   }
-  .message .source {
-    display: table-cell;
-    word-break: break-all;
-    text-align: right;
-    padding: 0 10px;
-    border-right: 1px solid lightgray;
-    width: 150px;
-  }
-  .message .source.local {
-    background-color: #f2f5ea;
-  }
-  .message .text {
-    display: table-cell;
-    padding: 0 10px;
-    word-break: break-all;
-  }
-  .message .text.json {
-    color: #4155A6;
-  }
-  .message .text.status {
-    color: green;
-  }
-  .message.me .source {
-    background-color: #eaf2f5;
-  }
-  "
+"
 
 @transmit "want layout", {id: 'message-container', name: "messages"}, ({data:{parent}}) ->
   $(parent).append container
 
-  me = undefined
-  @listen "user nickname", ({local, data: newuser}) ->
-    me = newuser if local
-
-
   @listen "display message", ({user, data: message}) ->
     scroll = (container.scrollTop() + container.height() == container[0].scrollHeight)
 
-    klass = if (me? and user is me) then "me" else "other"
-    messages.append "<div class='message #{klass}'>#{message}</div>"
+    messages.append "<div class='message'>#{message}</div>"
     
     container.scrollTop container[0].scrollHeight if scroll
   

@@ -139,8 +139,8 @@ class Children extends Messenger
       return robot
 
     catch e
-      reply type: "error", data: e
-      console.log "error!", e.message
+      reply type: "error", data: {message: e.message, stack:e.stack, type:e.type, arguments:e.arguments}
+      console.log "error!", e
       return
 
   sendRaw: (data) -> @distribute data, @parent
@@ -204,7 +204,8 @@ class Robot extends Messenger
 
   # Robot directive specifies a robot's details
   # We use this to respond to robot info requests and to set useful defaults
-  robot: (@name, @info={}) ->
+  robot: (@name, info) ->
+    @info = info or @info or {}
     @defaults.local = true if @info.local
     @defaults.robot = name
 

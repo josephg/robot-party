@@ -14,11 +14,48 @@ escapeHTML = (html) ->
 
 nl2br = (html) -> html.replace /\n/g, "<br />"
 
+
+@transmit "add style", "
+  .message .source {
+    display: table-cell;
+    word-break: break-all;
+    text-align: right;
+    padding: 0 10px;
+    border-right: 1px solid lightgray;
+    width: 150px;
+  }
+  .message .source.local {
+    background-color: #f2f5ea;
+  }
+  .message .source.me {
+    background-color: #eaf2f5;
+  }
+  .message .text {
+    display: table-cell;
+    padding: 0 10px;
+    word-break: break-all;
+  }
+  .message .text.json {
+    color: #4155A6;
+  }
+  .message .text.status {
+    color: green;
+  }
+"
+
+me = undefined
+@listen type: "user name", local: true, ({data}) -> me = data
+
+@transmit type: "user name?", local: true
+
+
 @listen "build message", ({user, data: {source, sourceclass, text, textclass, html}}) ->
   source ||= ''
   text ||= ''
   sourceclass ||= ''
   textclass ||= ''
+
+  sourceclass += " me" if me? and user is me
 
   message = "
     <div class='source #{sourceclass}'>#{escapeHTML source}</div>

@@ -1,16 +1,20 @@
-user = 'anon'
+@robot 'anon',
+  type: 'user'
 
-@robot user
+@bridge out: (data, ok) => data.user = @name; ok data
 
-@bridge out: (data, ok) -> data.user = user; ok data
 
 setUser = (name) =>
-  user = name
-  @name = name
+  @transmit local:true, type:"user name", data:name
   @transmit "robot name", name
+  @robot name
 
-@transmit {type:'name me', local:false}, ({data}) -> setUser data
+@transmit {type:'name me', local: false}, ({data}) -> setUser data
 
 @listen 'usercmd', ({data:cmd}, reply) ->
   if match = cmd.match /nick\s+(.*)$/
     setUser match[1]
+
+@listen type: 'user name?', local: true, (_, reply) ->
+  if @name isnt 'anon'
+    @transmit local: true, type: "user name", data: @name

@@ -1,17 +1,16 @@
 @robot "nickformatic"
   local: true
 
+
 me = undefined
 
-@listen "user nickname", ({local, user: oldname, data: newname}) ->
-  if local
-    me = newname
-  else
-    if me == oldname
-      text = "* your nick is now #{newname}"
-    else
-      text = "* #{oldname or 'anonymous'} is now #{newname}"
+@listen "robot name", ({robot, data: name}) ->
+  return if me? and name is me
+  @transmit "build message", textclass: "status", text: "* #{robot or 'anonymous'} renamed to #{name}"
 
-    @transmit "build message", textclass: "status", text: text
+@listen type: "user name", local: true, ({data: name}) ->
+  me = name
+  @transmit "build message", textclass: "status", text: "* your name is now #{name}"
 
-@transmit "handling display for type", "user nickname"
+@transmit "handling display for type", "user name"
+@transmit "handling display for type", "robot name"
