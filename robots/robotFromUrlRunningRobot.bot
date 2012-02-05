@@ -1,8 +1,0 @@
-@listen 'run robot from url', ({data:{url, name}}, reply) ->
-	if !url?
-		reply "error", "URL MISSING!"
-	else
-		@transmit 'get url', url, ({data:{data:code}}) ->
-			name ||= 'anonytron'
-			@transmit 'run robot', {name, code}, ({type, data}) ->
-				reply "ran robot from URL" if type != "error"

@@ -1,4 +1,5 @@
 @robot 'transmissionator'
+  description: "Torrent control."
 
 http = require 'http'
 

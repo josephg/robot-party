@@ -1,7 +1,6 @@
 @robot 'servo',
   local: true
-
-@defaults.local = true
+  description: "Serves web interface and listens for browserchannel connections."
 
 connect = require 'connect'
 browserChannel = require('browserchannel').server

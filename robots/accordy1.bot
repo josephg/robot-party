@@ -1,5 +1,6 @@
 @robot "accordy1",
   local: true
+  description: "Nice vertical partition widget that also includes robot tracking, display, editing and kitchen sinking."
 
 entities = {}
 hubs = {}
@@ -35,7 +36,13 @@ $(accordion).append etylist, detail, local
 detailView = (id) ->
   detailHub = id
   robot = entities[id]
-  detail.html "<div>#{escapeHTML robot.name}</div><button id='edit'>edit</button><div>Parent</div><div id='parent'></div><div>Children</div><div id='children'></div>"
+  detail.html "<div>#{escapeHTML robot.name}</div>
+    <div>#{escapeHTML (robot.info.description or '')}</div>
+    <button id='edit'>edit</button>
+    <div>Parent</div>
+    <div id='parent'></div>
+    <div>Children</div>
+    <div id='children'></div>"
   children = $('#children')
   parent = $('#parent')
   
@@ -48,15 +55,16 @@ detailView = (id) ->
   if entities[robot.parent]
     renderEty parent, entities[robot.parent]
   etys = hubs[id] or {}
-  for own id, ety of etys
+  for own _, ety of etys
     renderEty children, ety
 
 renderEty = (panel, {id, parent, name, info}) ->
-  el = $("<div class='entity' data-eid='#{id}' data-parent='#{parent}' title='#{name}'><img src='http://robohash.org/#{escape(name)}?set=set3&size=50x50' /><div class='name'>#{escapeHTML name}</div></div>").draggable(revert: 'invalid', distance: 15, helper: 'clone', appendTo: 'body')
+  el = $("<div class='robot' data-eid='#{id}' data-parent='#{parent}' title='#{name}'><img src='http://robohash.org/#{escape(name)}?set=set3&size=50x50' /><div class='name'>#{escapeHTML name}</div></div>").draggable(revert: 'invalid', distance: 15, helper: 'clone', appendTo: 'body')
   el.click ->
     console.log "clicked #{name} with id #{id} and parent id #{parent}"
     #if hubs[id]
-    detailView id
+    me.transmit "robot clicked", id
+    #detailView id
   
   oldel = panel.find("[data-eid='#{id}']")
   if oldel.length
@@ -65,13 +73,8 @@ renderEty = (panel, {id, parent, name, info}) ->
     panel.append el
 
 unrenderEty = (panel, id) ->
-  console.log "unredering", id, "from", panel
   foo = panel.find("[data-eid='#{id}']")
-  console.log "found", foo
   foo.remove()
-
-@transmit "handling display for type", "list entities"
-@transmit "handling display for type", "delist entities"
 
 @transmit "add style", "
   #accordion {
@@ -88,26 +91,6 @@ unrenderEty = (panel, id) ->
     height: 30%;
     border-bottom: 1px solid black;
     overflow-y: scroll;
-  }
-  .entity {
-    width: 50px;
-    height: 64px;
-    float: left;
-    margin: 5px;
-  }
-  .entity img {
-    width: 50px;
-    height: 50px;
-    border: 1px solid black;
-    border-radius: 10px;
-  }
-  .entity .name {
-    width: 50px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    height: 14px;
-    font-size: 12px;
-    text-align: center;
   }
   #detail {
     width: 100%;
@@ -128,28 +111,25 @@ unrenderEty = (panel, id) ->
   @listen local: true, type: "rename entity", ({data: {id, name}}) ->
     if ety = entities[id]
       entities[id].name = name
-      renderEty etylist, ety unless ety.info?.local
-      renderEty detail, ety if ety.parent is detailHub
-      renderEty local, ety if ety.parent is localHub
+      #renderEty etylist, ety unless ety.info?.local
+      #renderEty detail, ety if ety.parent is detailHub
+      #renderEty local, ety if ety.parent is localHub
 
   @listen local: true, type: "list entities", ({data: etys}) ->
-    #return unless local
     for ety in etys
-      renderEty etylist, ety unless ety.info?.local
-      renderEty detail, ety if ety.parent is detailHub
-      renderEty local, ety if ety.parent is localHub
+      #renderEty etylist, ety unless ety.info?.local
+      #renderEty detail, ety if ety.parent is detailHub
+      #renderEty local, ety if ety.parent is localHub
             
       entities[ety.id] = ety
       hubs[ety.parent] ||= {}
       hubs[ety.parent][ety.id] = ety
 
   @listen local: true, type: "delist entities", ({data: ids}) ->
-    console.log "DELISTING", ids
-    #return unless local
     for id in ids
       if ety = entities[id]
-        unrenderEty etylist, id
-        unrenderEty detail, id
-        unrenderEty local, id
+        #unrenderEty etylist, id
+        #unrenderEty detail, id
+        #unrenderEty local, id
         delete hubs[ety.parent][id]
         delete entities[id]

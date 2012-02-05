@@ -1,5 +1,6 @@
 @robot "sendax"
   local: true
+  description: "Sends chat messages and user commands."
 
 @listen "key sent", ({data:{key, alt, ctrl, meta, shift}}, reply) ->
   if key is 13

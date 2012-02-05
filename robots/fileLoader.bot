@@ -1,5 +1,6 @@
-@robot 'file robot loader'
+@robot 'fileLoader'
   local: true
+  description: "Loads a robot from the local filesystem."
 
 fs = require 'fs'
 @listen 'load robot', ({data:roboname, local}, reply) ->

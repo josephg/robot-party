@@ -1,4 +1,5 @@
 @robot 'share'
+  description: "Sharejs based robot editing integration"
 
 client = require('share').client
 

@@ -1,5 +1,6 @@
 @robot "inputnik"
   local: true
+  description: "Input box."
 
 cmd = $("<textarea id='cmd' autofocus />")
 

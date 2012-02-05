@@ -1,5 +1,6 @@
 @robot 'netwerk'
   local: true
+  description: "Wraps network-related robots so they can process messages before the messages enter general circulation."
 
 messages = {}
 registered = incoming: 0, outgoing: 0

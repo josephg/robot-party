@@ -1,0 +1,55 @@
+@robot 'roborenderer'
+  local: true
+  description: 'Renders a visual representation of a robot or robots'
+
+escapeHTML = (html) -> $('<div/>').text(html).html() if html?
+
+me = this
+
+
+@transmit "add style", "
+  .robot {
+    width: 50px;
+    height: 64px;
+    float: left;
+    margin: 5px;
+  }
+  .robot img {
+    width: 50px;
+    height: 50px;
+    border: 1px solid black;
+    border-radius: 10px;
+  }
+  .robot .name {
+    width: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 14px;
+    font-size: 12px;
+    text-align: center;
+  }
+"
+
+@listen type: 'render robots', local: true, ({data: {target, robots}}) ->
+  target = $(target)
+
+  for robot in robots
+    do (robot) ->
+      el = $("<div class='robot' data-eid='#{robot.id}' data-parent='#{robot.parent}' title='#{robot.name}'>
+        <img src='http://robohash.org/#{escape(robot.name)}?set=set3&size=50x50' />
+        <div class='name'>#{escapeHTML robot.name}</div>
+      </div>").draggable revert: 'invalid', distance: 15, helper: 'clone', appendTo: 'body'
+      
+      el.click ->
+        console.log "clicked #{name} with id #{robot.id} and parent id #{robot.parent}"
+        me.transmit "robot clicked", robot.id
+      
+      oldel = target.find("[data-eid='#{robot.id}']")
+      if oldel.length
+        oldel.replaceWith el
+      else 
+        target.append el
+
+@listen type: 'unrender robots', local: true, ({data: {target, robots}}) ->
+  for id in robots
+    $(target).find("[data-eid='#{id}']").remove()

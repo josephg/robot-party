@@ -1,0 +1,25 @@
+@robot "localpaneller"
+  local: true
+  description: "Panel of robots attached to your root hub."
+
+
+target = '#local'
+
+setTimeout =>
+
+  @transmit "query robots", {info: {root: true}}, ({data: [root]}) ->
+    
+    query = {parent: root.id}
+
+    @transmit "query robots", query, ({type, data: children}) ->
+      if type isnt "error"
+        @transmit "render robots", target: target, robots: children
+
+    @transmit "watch query robots", query
+
+    @listen type:"query matched update", local: true, data: {query: JSON.stringify query}, ({data}) ->
+      @transmit "render robots", target: target, robots: data.robots
+
+    @listen type:"query matched remove", local: true, data: {query: JSON.stringify query}, ({data}) ->
+      @transmit "unrender robots", target: target, robots: data.robots
+,200

@@ -1,5 +1,7 @@
 @robot "iTransmitForTheUsers"
   local: true
+  description: "Handles /transmit commands."
+
 @defaults.local = false
 
 @listen 'usercmd', ({data:cmd, user}, reply) ->

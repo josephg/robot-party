@@ -1,0 +1,99 @@
+@robot 'robotracker',
+  local: true
+  description: "Theoretically centrally tracks robots currently on the network. Actually does nothing useful."
+
+robots = {}
+children = {}
+watches = {}
+
+forWatches = (obj, fn) ->
+  for own key, query of watches
+    fn? key if matchQuery obj, query
+    
+
+@transmit "handling display for type", "list robots"
+@transmit "handling display for type", "I have robots"
+
+@listen "I have robots", ({from, data: robolist}) ->
+  watchAlerts = {}
+  for robot in robolist
+    robot.parent = from 
+    robots[robot.id] = robot
+    children[robot.parent] ?= {}
+    children[robot.parent][robot.id] = robot
+
+    forWatches robot, (key) ->
+      watchAlerts[key] ?= []
+      watchAlerts[key].push robot
+
+  for own key, roboten of watchAlerts
+    @transmit "query matched update", {query: key, robots: roboten}
+
+@listen "robot added", ({from: parent, data: {id, name, info}}) ->
+  robot = {id, name, info, parent}
+  robots[id] = robot
+  children[parent] ?= {}
+  children[parent][id] = robot
+  forWatches robot, (key) =>
+    @transmit "query matched update", {query: key, robots:[robot]}
+  
+@listen "robot stopped", ({data: id}) ->
+  if robots[id]
+    delete children[robots[id].parent][id]
+
+    forWatches robots[id], (key) =>
+      @transmit "query matched remove", {query: key, robots:[id]}
+
+  delete robots[id]
+
+@listen "robot name", ({from, data: name}) ->
+  if robots[from]
+    robots[from].name = name 
+    forWatches robots[from], (key) =>
+      @transmit "query matched update", {query: key, robots:[robots[from]]}
+
+
+matchQuery = (obj, query) ->
+  if typeof obj is 'object' and typeof query is 'object'
+    for key, val of query
+      #console.log "testing key", key, "recursing into", obj[key], "and", val
+      return false unless matchQuery obj[key], val
+    return true
+
+  switch query
+    when '{truthy}'
+      !!obj
+    when '{falsy}'
+      !obj
+    else
+      obj == query
+
+@listen type: "query robots", local: true, ({data:query}, reply) ->
+  #console.log "ROBOTS", robots
+  reply "robot query result", (robot for own id, robot of robots when matchQuery robot, query)
+
+@listen type: "watch query robots", local: true, ({data:query}, reply) ->
+  watches[JSON.stringify query] = query
+  reply "ok"
+
+@listen type: "get robot children", local: true, ({data:id}, reply) ->
+  if children[id]
+    reply "robot children", (child for own _, child of children[id])
+  else
+    reply "error", "no such robot"
+
+@listen type: "get robot info", local: true, ({data:id}, reply) ->
+  if robots[id]
+    reply "robot info", robots[id]
+  else
+    reply "error", "no such robot"
+
+
+
+setTimeout =>
+  @transmit type:"list robots", local:false
+, 200
+
+setInterval =>
+  @transmit type:"list robots", local:false
+, 1000 * 60 * 5

@@ -1,3 +1,6 @@
+@robot 'redistroyer'
+  description: "Redis storage."
+
 redis = require 'redis'
 client = redis.createClient()
 

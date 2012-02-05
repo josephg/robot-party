@@ -1,2 +1,4 @@
 @robot 'parrotron'
+  description: 'Repeats what it just saw.'
+  
 @listen (msg, reply) -> reply type: "I just saw", data: msg

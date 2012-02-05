@@ -1,4 +1,7 @@
-@robot 'ajaxis', local:true
+@robot 'ajaxis',
+  local: true
+  description: "Ajax robot loader."
+
 
 @listen 'load robot', ({data:roboname, local}, reply) ->
   return unless local

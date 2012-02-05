@@ -1,5 +1,6 @@
 @robot 'federatron'
   local: true
+  description: "Connects us to another network that listens on browserchannel."
 
 BCSocket = window?.BCSocket or require('browserchannel').BCSocket
 

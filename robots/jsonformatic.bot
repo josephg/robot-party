@@ -1,5 +1,6 @@
 @robot 'JSONformatic'
   local: true
+  description: "Rich display of incoming JSON messages."
 
 deluge = false
 ignores = {}

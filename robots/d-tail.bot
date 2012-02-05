@@ -1,0 +1,38 @@
+@robot 'd-tail'
+  local: true
+  description: 'Detail view for robots, including list of children and edit/stop buttons.'
+
+
+@listen type: 'robot clicked', local: true, ({data: id}) ->
+  @transmit "get robot info", id, ({type, data: robot}) ->
+    detailView robot if type isnt "error"
+
+escapeHTML = (html) -> $('<div/>').text(html).html() if html?
+
+detailView = (robot) =>
+  console.log "detail view got", robot
+  $('#detail').html "<div>#{escapeHTML robot.name}</div>
+    <div>#{escapeHTML (robot.info.description or '')}</div>
+    <button id='edit'>edit</button>
+    <div>Parent</div>
+    <div id='parent'></div>
+    <div>Children</div>
+    <div id='children'></div>"
+  
+  @transmit "get robot info", robot.parent, ({type, data: parent}) ->
+    @transmit "render robots", target: '#parent', robots: [parent]
+
+  @transmit "get robot children", robot.id, ({type, data: children}) ->
+    @transmit "render robots", target: '#children', robots: children
+
+  $('#edit').click ->
+    me.transmit to: robot.parent, local: false, type: "get robot", data: id, ({type, data: code}) ->
+      if type isnt "error"
+        me.transmit "editbox", title: robot.name, text: code, id: id
+    
+
+  #if entities[robot.parent]
+  #  renderEty parent, entities[robot.parent]
+  #etys = hubs[id] or {}
+  #for own _, ety of etys
+  #  renderEty children, ety

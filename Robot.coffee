@@ -12,6 +12,15 @@ randomId = (length = 10) ->
   chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-="
   (chars[Math.floor(Math.random() * chars.length)] for x in [0...length]).join('')
 
+
+matchQuery = (obj, query) ->
+  if typeof obj is 'object' and typeof query is 'object'
+    for key, val of query
+      return false unless matchQuery obj[key], val
+    return true
+  return obj == query
+
+
 ##
 # Messenger is a mixin that provides listen, transmit and receive methods
 ##
@@ -37,15 +46,7 @@ class Messenger
       return ok(msg, src) if !matcher?
       return ok(msg, src) if matcher == msg.type
       return ok(msg, src) if typeof matcher is 'function' and matcher(msg)
-      if typeof matcher is 'object'
-        allmatches = true
-        for own key, val of matcher
-          if msg[key] != val
-            #console.log "message didn't match on '#{key}'", "(", msg[key], "!=", val, ")"
-            allmatches = false
-            break
-        #console.log "message did match ", matcher if allmatches
-        return ok(msg, src) if allmatches
+      return ok(msg, src) if typeof matcher is 'object' and matchQuery(msg, matcher)
               
     return @lid++
   
@@ -171,7 +172,10 @@ defaultbot = ->
   #@children.listen "list robots", list
 
   @listen to: @id, type: "get robot", ({data: id}, reply) ->
-    reply type: "code for robot", local: false, data: @children.get(id).code if @children.get(id)?.code?
+    if @children.get(id)?.code?
+      reply type: "code for robot", local: false, data: @children.get(id).code
+    else
+      reply type: "error", local: false, data: "no such robot"
 
   @listen to: @id, trusted: true, type: "add robot", ({id: msgid, data: robocode}, reply) ->
     @children.add robocode, reply

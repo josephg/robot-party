@@ -1,3 +1,0 @@
-connect = require 'connect'
-app = connect connect.static(__dirname + '/public')
-app.listen 4322

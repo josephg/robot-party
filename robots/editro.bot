@@ -1,5 +1,6 @@
 @robot 'editro'
   local: true
+  description: "Robot editing robot."
 
 me = this
 

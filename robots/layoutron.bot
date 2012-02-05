@@ -1,6 +1,7 @@
 @robot "layoutron"
   local: true
- 
+  description: "Top-level layout robot. Decides where other display robots go."
+
 $('body').css 'font-family': "'Ubuntu Mono', monospace"
 
 mainarea = $("<div id='mainarea' />")

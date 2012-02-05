@@ -1,5 +1,6 @@
 @robot 'anon',
   type: 'user'
+  description: "Identity bot for user. Wraps robots inside it with user information."
 
 @bridge out: (data, ok) => data.user = @name; ok data
 

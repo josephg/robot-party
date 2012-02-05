@@ -1,5 +1,6 @@
 @robot "copyscript",
   local: true
+  description: "Copies a robot from one place to another."
 
 @listen local: true, type: "copy robot", ({data: {fromhub, tohub, id}}, reqreply) ->
   @transmit type: "get robot", local: false, to: fromhub, data: id, ({data: code}) ->
