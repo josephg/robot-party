@@ -3,10 +3,18 @@
   description: "Panel of robots attached to your root hub."
 
 
-target = '#local'
+target = '#localpanel'
 
+@transmit "add style", "
+  #localpanel {
+    width: 100%;
+    height: 30%;
+    overflow-y: scroll;
+  }
+"
+
+#Robotracker might not be ready yet
 setTimeout =>
-
   @transmit "query robots", {info: {root: true}}, ({data: [root]}) ->
     
     query = {parent: root.id}
@@ -22,4 +30,10 @@ setTimeout =>
 
     @listen type:"query matched remove", local: true, data: {query: JSON.stringify query}, ({data}) ->
       @transmit "unrender robots", target: target, robots: data.robots
-,200
+
+
+  $(target).droppable drop: (ev, ui) =>
+    data = ui.draggable.data()
+    console.log "got drop for id", data.eid, "hub", data.parent, "desthub", localHub
+    @transmit "copy robot", fromhub: data.parent, tohub: localHub, id: data.eid
+, 100

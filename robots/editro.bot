@@ -4,10 +4,11 @@
 
 me = this
 
-@listen "editbox", ({data:{text, title, id}}) ->
+
+@listen "edit robot", ({data:{text, title, id}}) ->
   dialog = $("<div>")
 
-  @transmit "want layout", {name: "sidebar"}, ({data:{parent}}) ->
+  @transmit "want layout", {name: "dialog"}, ({data:{parent}}) ->
     $(parent).append dialog
     dialog.dialog(
       width: 640

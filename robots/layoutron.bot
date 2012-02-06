@@ -30,6 +30,9 @@ sidebar.css position: 'absolute', top: 0, bottom: '2em', left: '80%', right: 0
   if name is "sidebar"
   	reply "layout", parent: "#sidebar"
 
+  else
+    reply "layout", parent: "#mainarea"
+
 @listen "add style", ({data: style}, reply) ->
   try
     $(document.head).append $('<style>').text(style)

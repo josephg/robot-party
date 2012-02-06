@@ -1,135 +1,25 @@
 @robot "accordy1",
   local: true
-  description: "Nice vertical partition widget that also includes robot tracking, display, editing and kitchen sinking."
-
-entities = {}
-hubs = {}
-localHub = @parent.id
-detailHub = null
+  description: "Vertically partitioned sidebar."
 
 me = this
 
-escapeHTML = (html) -> $('<div/>').text(html).html() if html?
-
 accordion = $("<div id='accordion' />")
-etylist = $("<div id='etylist' />")
-detail   = $("<div id='detail' />")
-local    = $("<div id='local' />")
+etylist = $("<div id='mainpanel' />")
+detail   = $("<div id='detailpanel' />")
+local    = $("<div id='localpanel' />")
 
-local.droppable drop: (ev, ui) =>
-  data = ui.draggable.data()
-  console.log "got drop for id", data.eid, "hub", data.parent, "desthub", localHub
-  @transmit "copy robot", fromhub: data.parent, tohub: localHub, id: data.eid
 
 $(accordion).append etylist, detail, local
 
-
 # Maybe make this a reply to the editbox command?
-@listen "editbox saved", (data:{id, text: code}) ->
-  robot = entities[id]
-  if robot
-    @transmit to: robot.parent, type: "remove robot", trusted: true, local: false, data: id, ({type}) ->
-      if type isnt "error"
-        @transmit to: robot.parent, type: "add robot", trusted: true, local: false, data: code
-
-
-detailView = (id) ->
-  detailHub = id
-  robot = entities[id]
-  detail.html "<div>#{escapeHTML robot.name}</div>
-    <div>#{escapeHTML (robot.info.description or '')}</div>
-    <button id='edit'>edit</button>
-    <div>Parent</div>
-    <div id='parent'></div>
-    <div>Children</div>
-    <div id='children'></div>"
-  children = $('#children')
-  parent = $('#parent')
-  
-  $('#edit').click ->
-    me.transmit to: robot.parent, local: false, type: "get robot", data: id, ({type, data: code}) ->
-      if type isnt "error"
-        me.transmit "editbox", title: robot.name, text: code, id: id
-    
-
-  if entities[robot.parent]
-    renderEty parent, entities[robot.parent]
-  etys = hubs[id] or {}
-  for own _, ety of etys
-    renderEty children, ety
-
-renderEty = (panel, {id, parent, name, info}) ->
-  el = $("<div class='robot' data-eid='#{id}' data-parent='#{parent}' title='#{name}'><img src='http://robohash.org/#{escape(name)}?set=set3&size=50x50' /><div class='name'>#{escapeHTML name}</div></div>").draggable(revert: 'invalid', distance: 15, helper: 'clone', appendTo: 'body')
-  el.click ->
-    console.log "clicked #{name} with id #{id} and parent id #{parent}"
-    #if hubs[id]
-    me.transmit "robot clicked", id
-    #detailView id
-  
-  oldel = panel.find("[data-eid='#{id}']")
-  if oldel.length
-    oldel.replaceWith el
-  else 
-    panel.append el
-
-unrenderEty = (panel, id) ->
-  foo = panel.find("[data-eid='#{id}']")
-  foo.remove()
-
 @transmit "add style", "
   #accordion {
     border-left: 1px solid black;
     width: 100%;
     height: 100%;
   }
-  #parent {
-    width: 100%;
-    height: 80px;
-  }
-  #etylist {
-    width: 100%;
-    height: 30%;
-    border-bottom: 1px solid black;
-    overflow-y: scroll;
-  }
-  #detail {
-    width: 100%;
-    height: 40%;
-    border-bottom: 1px solid black;
-    overflow-y: scroll;
-  }
-  #local {
-    width: 100%;
-    height: 30%;
-    overflow-y: scroll;
-  }
   "
 
 @transmit "want layout", {name: "sidebar"}, ({data:{parent}}) ->
   $(parent).append accordion
-
-  @listen local: true, type: "rename entity", ({data: {id, name}}) ->
-    if ety = entities[id]
-      entities[id].name = name
-      #renderEty etylist, ety unless ety.info?.local
-      #renderEty detail, ety if ety.parent is detailHub
-      #renderEty local, ety if ety.parent is localHub
-
-  @listen local: true, type: "list entities", ({data: etys}) ->
-    for ety in etys
-      #renderEty etylist, ety unless ety.info?.local
-      #renderEty detail, ety if ety.parent is detailHub
-      #renderEty local, ety if ety.parent is localHub
-            
-      entities[ety.id] = ety
-      hubs[ety.parent] ||= {}
-      hubs[ety.parent][ety.id] = ety
-
-  @listen local: true, type: "delist entities", ({data: ids}) ->
-    for id in ids
-      if ety = entities[id]
-        #unrenderEty etylist, id
-        #unrenderEty detail, id
-        #unrenderEty local, id
-        delete hubs[ety.parent][id]
-        delete entities[id]

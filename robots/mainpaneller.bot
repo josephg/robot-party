@@ -4,7 +4,16 @@
 
 query = {info: {local: '{falsy}'}}
 queryJSON = JSON.stringify query
-target = '#etylist'
+target = '#mainpanel'
+
+@transmit "add style", "
+  #mainpanel {
+    width: 100%;
+    height: 30%;
+    border-bottom: 1px solid black;
+    overflow-y: scroll;
+  }
+"
 
 @transmit "query robots", query, ({data: robots}) ->
   @transmit "render robots", target: target, robots: robots

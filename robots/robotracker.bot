@@ -76,12 +76,6 @@ matchQuery = (obj, query) ->
   watches[JSON.stringify query] = query
   reply "ok"
 
-@listen type: "get robot children", local: true, ({data:id}, reply) ->
-  if children[id]
-    reply "robot children", (child for own _, child of children[id])
-  else
-    reply "error", "no such robot"
-
 @listen type: "get robot info", local: true, ({data:id}, reply) ->
   if robots[id]
     reply "robot info", robots[id]
