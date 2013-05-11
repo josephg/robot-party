@@ -1,4 +1,4 @@
-@robot 'speak'
+@robot 'speak',
   description: "Says 'rawr'"
 
 @transmit "rawr", "rawr"

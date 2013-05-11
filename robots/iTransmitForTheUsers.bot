@@ -1,4 +1,4 @@
-@robot "iTransmitForTheUsers"
+@robot "iTransmitForTheUsers",
   local: true
   description: "Handles /transmit commands."
 

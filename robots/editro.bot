@@ -1,4 +1,4 @@
-@robot 'editro'
+@robot 'editro',
   local: true
   description: "Robot editing robot."
 

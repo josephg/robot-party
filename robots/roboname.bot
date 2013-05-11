@@ -1,4 +1,4 @@
-@robot 'roboname'
+@robot 'roboname',
   description: "Gets a cool robot name on request."
 
 prefixes = [

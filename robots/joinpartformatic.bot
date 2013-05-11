@@ -1,4 +1,4 @@
-@robot "nickformatic"
+@robot "nickformatic",
   local: true
   description: "Formats join and part messages."
 

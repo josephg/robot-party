@@ -1,4 +1,4 @@
-@robot "messagebuilder"
+@robot "messagebuilder",
   local: true
   description: "Builds standard format messages with a source and a message text (or html)."
 

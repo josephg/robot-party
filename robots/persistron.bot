@@ -1,4 +1,4 @@
-@robot "persistron"
+@robot "persistron",
   local: true
   description: "Robot for storing things"
 

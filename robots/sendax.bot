@@ -1,4 +1,4 @@
-@robot "sendax"
+@robot "sendax",
   local: true
   description: "Sends chat messages and user commands."
 

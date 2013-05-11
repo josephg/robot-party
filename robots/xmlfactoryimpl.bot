@@ -1,4 +1,4 @@
-@robot 'xmlfactoryimpl'
+@robot 'xmlfactoryimpl',
   description: "Parses XML documents and returns the result as an object."
 
 xml2json = require 'xml2json'

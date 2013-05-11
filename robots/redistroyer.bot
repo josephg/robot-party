@@ -1,4 +1,4 @@
-@robot 'redistroyer'
+@robot 'redistroyer',
   description: "Redis storage."
 
 redis = require 'redis'
@@ -8,64 +8,64 @@ client.select 2
 client.on 'connected', -> client.select 2
 
 acknowledge = (reply) -> (err) ->
-	if err
-		reply "error", err
-	else
-		reply "done"
+  if err
+    reply "error", err
+  else
+    reply "done"
 
 deliver = (reply, fn) -> (err, value) ->
-	if err
-		reply "error", err
-	else
-		reply "done", fn(value)
+  if err
+    reply "error", err
+  else
+    reply "done", fn(value)
 
 keyName = (key) -> "ROBO" + JSON.stringify(key)
 
 @listen 'redis SET', ({data:{key, value}}, reply) ->
-	unless key? and value != undefined
-		@transmit "error", "ERROR ERROR NEED KEY AND VAL"
-	else
-		client.set (keyName key), JSON.stringify(value), (acknowledge reply)
-	
+  unless key? and value != undefined
+    @transmit "error", "ERROR ERROR NEED KEY AND VAL"
+  else
+    client.set (keyName key), JSON.stringify(value), (acknowledge reply)
+  
 @listen 'redis GET', ({data:key}, reply) ->
-	unless key?
-		@transmit "error", "ERROR ERROR NEED KEY"
-	else
-		client.get (keyName key), (deliver reply, JSON.parse)
+  unless key?
+    @transmit "error", "ERROR ERROR NEED KEY"
+  else
+    client.get (keyName key), (deliver reply, JSON.parse)
 
 @listen 'redis RPUSH', ({data:{key, value}}, reply) ->
-	unless key? and value != undefined
-		@transmit "error", "ERROR ERROR NEED KEY AND VAL"
-	else
-		client.rpush (keyName key), JSON.stringify(value), (acknowledge reply)
+  unless key? and value != undefined
+    @transmit "error", "ERROR ERROR NEED KEY AND VAL"
+  else
+    client.rpush (keyName key), JSON.stringify(value), (acknowledge reply)
 
 @listen 'redis LGET', ({data:key}, reply) ->
-	unless key?
-		@transmit "error", "ERROR ERROR NEED KEY"
-	else
-		client.lrange (keyName key), 0, -1, deliver(reply, (v) -> v.map(JSON.parse))
+  unless key?
+    @transmit "error", "ERROR ERROR NEED KEY"
+  else
+    client.lrange (keyName key), 0, -1, deliver(reply, (v) -> v.map(JSON.parse))
 
 @listen 'redis HSET', ({data:{key, field, value}}, reply) ->
-	unless key? and field? and value != undefined
-		@transmit "error", "ERROR ERROR NEED KEY, FIELD AND VAL!"
-	else
-		client.hset (keyName key), field, JSON.stringify(value), (acknowledge reply)
+  unless key? and field? and value != undefined
+    @transmit "error", "ERROR ERROR NEED KEY, FIELD AND VAL!"
+  else
+    client.hset (keyName key), field, JSON.stringify(value), (acknowledge reply)
 
 @listen 'redis HDEL', ({data:{key, field}}, reply) ->
-	unless key? and field?
-		@transmit "error", "ERROR ERROR NEED KEY AND FIELD"
-	else
-		client.hdel (keyName key), field, (acknowledge reply)
+  unless key? and field?
+    @transmit "error", "ERROR ERROR NEED KEY AND FIELD"
+  else
+    client.hdel (keyName key), field, (acknowledge reply)
 
 @listen 'redis HGETALL', ({data:key}, reply) ->
-	unless key?
-		@transmit "error", "ERROR ERROR NEED KEY"
-	else
-		mapper = (obj) ->
-			obj[k] = JSON.parse(v) for k, v of obj
-			obj
-			
-		client.hgetall (keyName key), (deliver reply, mapper)
+  unless key?
+    @transmit "error", "ERROR ERROR NEED KEY"
+  else
+    mapper = (obj) ->
+      obj[k] = JSON.parse(v) for k, v of obj
+      obj
+      
+    client.hgetall (keyName key), (deliver reply, mapper)
 
 
 

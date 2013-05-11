@@ -1,4 +1,4 @@
-@robot "mainpaneller"
+@robot "mainpaneller",
   local: true
   description: "Panel of main (ie non-local-only) robots."
 

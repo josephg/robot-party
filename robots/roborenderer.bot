@@ -1,4 +1,4 @@
-@robot 'roborenderer'
+@robot 'roborenderer',
   local: true
   description: 'Renders a visual representation of a robot or robots'
 

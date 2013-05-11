@@ -1,4 +1,4 @@
-@robot 'printbot'
+@robot 'printbot',
   local: true
   description: "Console logs whatever it sees."
 

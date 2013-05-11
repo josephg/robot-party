@@ -1,4 +1,4 @@
-@robot "localpaneller"
+@robot "localpaneller",
   local: true
   description: "Panel of robots attached to your root hub."
 

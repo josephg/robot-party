@@ -1,4 +1,4 @@
-@robot 'd-tail'
+@robot 'd-tail',
   local: true
   description: 'Detail view for robots, including list of children and edit/stop buttons.'
 

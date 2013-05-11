@@ -1,4 +1,4 @@
-@robot 'share'
+@robot 'share',
   description: "Sharejs based robot editing integration"
 
 client = require('share').client
@@ -6,27 +6,27 @@ client = require('share').client
 st = (timeout, fn) -> setTimeout fn, timeout
 
 ratelimit = (time, fn) ->
-	timeout = null
+  timeout = null
 
-	(args...) ->
-		if timeout == null
-			timeout = st time, ->
-				fn.apply null, args
-				timeout = null
+  (args...) ->
+    if timeout == null
+      timeout = st time, ->
+        fn.apply null, args
+        timeout = null
 
 @listen 'watch', ({data:{docName, roboName}}, reply) =>
-	follow docName, roboName, -> reply 'ok'
-	@transmit 'redis HSET', {key:'sharebot', field:roboName, value:docName}
+  follow docName, roboName, -> reply 'ok'
+  @transmit 'redis HSET', {key:'sharebot', field:roboName, value:docName}
 
 follow = (docName, roboName, callback) =>
-	client.open docName, 'text', {host: 'localhost', port: 8000}, (doc, error) =>
-		callback() if callback?
+  client.open docName, 'text', {host: 'localhost', port: 8000}, (doc, error) =>
+    callback() if callback?
 
-		send = ratelimit 2000, => @transmit 'run robot', {name:roboName, code:doc.snapshot}
+    send = ratelimit 2000, => @transmit 'run robot', {name:roboName, code:doc.snapshot}
 
-		send()
-		doc.on 'remoteop', send
+    send()
+    doc.on 'remoteop', send
 
 @transmit 'redis HGETALL', 'sharebot', ({type, data}) ->
-	return if type == 'error'
-	follow docName, roboName for roboName, docName of data
+  return if type == 'error'
+  follow docName, roboName for roboName, docName of data

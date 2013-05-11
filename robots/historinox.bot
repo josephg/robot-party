@@ -1,4 +1,4 @@
-@robot "historinox"
+@robot "historinox",
   local: true
   description: "Edit box history with up/down keys."
 

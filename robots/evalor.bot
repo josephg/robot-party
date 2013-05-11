@@ -1,4 +1,4 @@
-@robot 'evalor'
+@robot 'evalor',
   description: "Evaluates things."
 
 @listen "eval", ({data}, reply) ->

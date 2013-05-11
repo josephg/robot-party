@@ -1,4 +1,4 @@
-@robot "nickformatic"
+@robot "nickformatic",
   local: true
   description: "Formats robot and username messages."
 

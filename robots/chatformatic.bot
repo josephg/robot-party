@@ -1,4 +1,4 @@
-@robot 'chatformatic'
+@robot 'chatformatic',
   local: true
   description: "Formats chat messages."
 

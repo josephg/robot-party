@@ -1,4 +1,4 @@
-@robot 'weboplex'
+@robot 'weboplex',
   description: "Fetches web pages."
 
 http = require 'http'

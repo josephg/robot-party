@@ -1,4 +1,4 @@
-@robot 'cryptonominom'
+@robot 'cryptonominom',
   local: true
   description: "Wraps outgoing and unwraps incoming messages with RSA signatures."
 

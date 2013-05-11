@@ -1,4 +1,4 @@
-@robot "displayinator"
+@robot "displayinator",
   local: true
   description: "Main message window."
 

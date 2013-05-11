@@ -1,4 +1,4 @@
-@robot "inputnik"
+@robot "inputnik",
   local: true
   description: "Input box."
 
