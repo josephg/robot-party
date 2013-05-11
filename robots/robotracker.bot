@@ -5,22 +5,27 @@
 robots = {}
 children = {}
 watches = {}
+live = {}
 
 forWatches = (obj, fn) ->
   for own key, query of watches
     fn? key if matchQuery obj, query
     
-
-@transmit "handling display for type", "list robots"
-@transmit "handling display for type", "I have robots"
+# JSONformatic probably isn't up yet
+setTimeout =>
+  @transmit "handling display for type", "list robots"
+  @transmit "handling display for type", "I have robots"
+, 200
 
 @listen "I have robots", ({from, data: robolist}) ->
   watchAlerts = {}
+
   for robot in robolist
     robot.parent = from 
     robots[robot.id] = robot
     children[robot.parent] ?= {}
     children[robot.parent][robot.id] = robot
+    live[robot.id] = true
 
     forWatches robot, (key) ->
       watchAlerts[key] ?= []
@@ -29,6 +34,12 @@ forWatches = (obj, fn) ->
   for own key, roboten of watchAlerts
     @transmit "query matched update", {query: key, robots: roboten}
 
+  for own id of children[robot.parent]
+    if live[id]
+      delete live[id]
+    else
+      cleanup id      
+
 @listen "robot added", ({from: parent, data: {id, name, info}}) ->
   robot = {id, name, info, parent}
   robots[id] = robot
@@ -36,15 +47,24 @@ forWatches = (obj, fn) ->
   children[parent][id] = robot
   forWatches robot, (key) =>
     @transmit "query matched update", {query: key, robots:[robot]}
-  
-@listen "robot stopped", ({data: id}) ->
+
+
+# Recursively remove robots
+cleanup = (id) =>
   if robots[id]
+    if children[id]
+      for i, child of children[id]
+        cleanup i unless i == id
+
+    delete children[id]
     delete children[robots[id].parent][id]
 
     forWatches robots[id], (key) =>
       @transmit "query matched remove", {query: key, robots:[id]}
 
   delete robots[id]
+  
+@listen "robot stopped", ({data: id}) -> cleanup id
 
 @listen "robot name", ({from, data: name}) ->
   if robots[from]
