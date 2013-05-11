@@ -3,34 +3,42 @@
   description: "Serves web interface and listens for browserchannel connections."
 
 connect = require 'connect'
-browserChannel = require('browserchannel').server
-sessions = []
-app = connect(
-  connect.static(__dirname + '/public')
-  browserChannel (session) =>
-    console.log "Client #{session.id} connected"
+sockjs = require 'sockjs'
+app = connect(connect.static(__dirname + '/public'))
 
-    sessions.push session
+opts = sockjs_url: "http://cdn.sockjs.org/sockjs-0.3.min.js"
 
-    session.on 'message', (msg) =>
-      return if msg is null or msg.local
-      @transmit 'incoming message', msg
+sock = sockjs.createServer opts
 
-      # broadcast to all other sessions
-      c.send msg for c in sessions when c != session
+clients = []
+sock.on 'connection', (client) =>
+  console.log "Client connected"
 
-    session.on 'close', (reason) ->
-      console.log "Client #{session.id} disconnected (#{reason})"
-      # Remove the session from the session list
-      sessions = (c for c in sessions when c != session)
-)
+  clients.push client
+
+  client.on 'data', (msg) =>
+    return if msg is null or msg.local
+    @transmit 'incoming message', JSON.parse msg
+    console.log "message", msg
+
+    # broadcast to all other clients
+    c.write msg for c in clients when c != client
+
+  client.on 'close', (reason) ->
+    console.log "Client disconnected (#{reason})"
+    # Remove the client from the client list
+    clients = (c for c in clients when c != client)
+
+sock.installHandlers app, prefix: '/sock'
 
 app.listen 4321
 
 # Proxy incoming messages from other network channels
 @listen 'incoming message', ({data: msg}) ->
-  c.send msg for c in sessions unless msg.local
+  msg = JSON.stringify msg
+  c.write msg for c in clients unless msg.local
 
 @listen 'send message', ({data: msg}) ->
-  c.send msg for c in sessions unless msg.local
+  msg = JSON.stringify msg
+  c.write msg for c in clients unless msg.local
 

@@ -1,28 +1,42 @@
-@robot 'federatron'
+@robot 'federatron',
   local: true
-  description: "Connects us to another network that listens on browserchannel."
+  description: "Connects us to another network that listens on sockjs."
 
-BCSocket = window?.BCSocket or require('browserchannel').BCSocket
+WS = window?.SockJS or require('ws')
 
 @listen 'federate', ({data:host, local}, reply) =>
   return unless local
 
-  host = '/channel' unless typeof host is 'string'
-  party = new BCSocket host, reconnect: true
+  host = '/sock' unless typeof host is 'string'
+  host += '/websocket' if !window?.SockJS
+ 
+  party = null
 
-  party.onopen = ->
-    console.log 'connected'
+  connect = =>
+    party = new WS host
 
-  party.onmessage = (msg) =>
-    return if party.readyState != party.OPEN
-    @transmit 'incoming message', msg unless msg.local
+    party.onopen = ->
+      console.log 'connected'
 
+    party.onmessage = (e) =>
+      return if party.readyState isnt 1
+      msg = JSON.parse e.data
+      @transmit 'incoming message', msg unless msg.local
+
+    party.onclose = ->
+      console.log "connection lost, reconnecting..."
+      setTimeout connect, 5000
+
+
+  connect()
 
   @listen 'incoming message', ({data: msg}) ->
     party.send msg unless msg.local
+
   @listen 'send message', ({data: msg}) ->
     console.log "got send message", msg
-    unless msg.local
-      party.send msg
+    return if party.readyState isnt 1
+    unless msg.local 
+      party.send JSON.stringify msg
 
 

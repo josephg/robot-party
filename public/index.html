@@ -11,7 +11,7 @@
     <script src="/js/crypto.js"></script>
     <script src="/js/rsa-pem.js"></script>
 
-    <script src="/channel/bcsocket.js"></script>
+    <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
 
     <script src="/js/ace.js" type="text/javascript" charset="utf-8"></script>
     <script src="/js/theme-textmate.js" type="text/javascript" charset="utf-8"></script>
@@ -21,10 +21,10 @@
     <script type="text/coffeescript" src="Robot.coffee"></script>
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css" type="text/css" media="all">
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono' rel='stylesheet' type='text/css'>    
-		<title>ROBOT PARTY!</title>
+    <title>ROBOT PARTY!</title>
   </head>
   <body>
-    <script type="text/coffeescript">      
+    <script type="text/coffeescript">
       $.ajax url: "client.bot", success: (data) ->
         robot = new Robot data
     </script>
