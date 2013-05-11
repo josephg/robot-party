@@ -42,6 +42,9 @@ nl2br = (html) -> html.replace /\n/g, "<br />"
   .message .text.status {
     color: green;
   }
+  .message .text.re {
+    padding-left: 2em;
+  }
 "
 
 me = undefined
@@ -50,16 +53,17 @@ me = undefined
 @transmit type: "user name?", local: true
 
 
-@listen "build message", ({user, data: {source, sourceclass, text, textclass, html}}) ->
+@listen "build message", ({user, data: {id, re, source, sourceclass, text, textclass, html}}) ->
   source ||= ''
   text ||= ''
   sourceclass ||= ''
   textclass ||= ''
 
-  sourceclass += " me" if me? and user is me
+  sourceclass += "me" if me? and user is me
+  reclass = if re then "re" else ""
 
   message = "
-    <div class='source #{sourceclass}'>#{escapeHTML source}</div>
-  	<div class='text #{textclass}'>#{html or (nl2br escapeHTML text)}</div>
+    <div class='source #{sourceclass} #{reclass}'>#{escapeHTML source}</div>
+  	<div class='text #{textclass} #{reclass}'>#{html or (nl2br escapeHTML text)}</div>
   "
-  @transmit type:"display message", user:user, data:message
+  @transmit type:"display message", user:user, data:{message, id, re}

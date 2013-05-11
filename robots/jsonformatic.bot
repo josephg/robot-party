@@ -104,12 +104,13 @@ json2html = (obj) ->
 
 
 
-  @transmit "build message",
-  	sourceclass: sourceclass,
-  	source: from,
-  	textclass: 'json',
-  	html: msg2html msg,
-  	{user: msg.user}
+  @transmit type: "build message", user: msg.user, data:
+    id: msg.id,
+    re: msg.re,
+    sourceclass: sourceclass,
+    source: from,
+    textclass: 'json',
+    html: msg2html msg
 
 
 @listen "usercmd", ({data}) ->

@@ -23,10 +23,19 @@ container.append messages
 @transmit "want layout", {id: 'message-container', name: "messages"}, ({data:{parent}}) ->
   $(parent).append container
 
-  @listen "display message", ({user, data: message}) ->
+  @listen "display message", ({user, data: {message, id, re}}) ->
     scroll = (container.scrollTop() + container.height() == container[0].scrollHeight)
 
-    messages.append "<div class='message'>#{message}</div>"
+    id = if id then "msg-#{id}" else ""
+    re = if re then "msg-#{re}" else ""
+
+    html = "<div id='#{id}' class='message'>#{message}</div>"
+
+    if re and (reEl = $("#" + re)) and reEl.length
+      console.log "appending after", re
+      reEl.after html
+    else
+      messages.append html
     
     container.scrollTop container[0].scrollHeight if scroll
   
