@@ -4,11 +4,8 @@
 
 BCSocket = window?.BCSocket or require('browserchannel').BCSocket
 
-#Faye.Transport.WebSocket.isUsable = (_,c) -> c false
-
 @listen 'federate', ({data:host, local}, reply) =>
   return unless local
-  console.log "FEDERATE FEDERATE FEDERATE"
 
   host = '/channel' unless typeof host is 'string'
   party = new BCSocket host, reconnect: true
@@ -19,7 +16,6 @@ BCSocket = window?.BCSocket or require('browserchannel').BCSocket
   party.onmessage = (msg) =>
     return if party.readyState != party.OPEN
     @transmit 'incoming message', msg unless msg.local
-    #console.log 'INCOMING MESSAGE', msg.id, msg
 
 
   @listen 'incoming message', ({data: msg}) ->
