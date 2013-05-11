@@ -86,7 +86,7 @@ json2html = (obj) ->
       for key, val of obj
         html.push (json2html val)...
     when 'string'
-      html.push nl2br obj
+      html.push nl2br escapeHTML obj
     when 'undefined'
       html.push 'undefined'
     else

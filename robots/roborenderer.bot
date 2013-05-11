@@ -36,7 +36,7 @@ me = this
   for robot in robots
     do (robot) ->
       el = $("<div class='robot' data-eid='#{robot.id}' data-parent='#{robot.parent}' title='#{robot.name}'>
-        <img src='http://robohash.org/#{escape(robot.name)}?set=set3&size=50x50' />
+        <img src='http://robohash.org/#{encodeURIComponent(robot.name)}?set=set3&size=50x50' />
         <div class='name'>#{escapeHTML robot.name}</div>
       </div>").draggable revert: 'invalid', distance: 15, helper: 'clone', appendTo: 'body'
       
