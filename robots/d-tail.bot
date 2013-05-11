@@ -35,7 +35,7 @@ detailView = (robot) =>
   @transmit "get robot info", robot.parent, ({type, data: parent}) ->
     @transmit "render robots", target: '#parent', robots: [parent]
 
-  @transmit "get robot children", robot.id, ({type, data: children}) ->
+  @transmit "query robots", {parent: robot.id}, ({type, data: children}) ->
     @transmit "render robots", target: '#children', robots: children
 
   $('#edit').click =>
@@ -47,6 +47,7 @@ detailView = (robot) =>
 @listen "editbox saved", (data:{id, text: code}) ->
   @transmit "get robot info", id, ({type, data: robot}) ->
     if type isnt "error"
+      @transmit "set value", key: ("robocode_" + robot.name), value: code
       @transmit to: robot.parent, type: "remove robot", trusted: true, local: false, data: id, ({type}) ->
         if type isnt "error"
           @transmit to: robot.parent, type: "add robot", trusted: true, local: false, data: code

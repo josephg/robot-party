@@ -1,0 +1,26 @@
+@robot "persistron"
+  local: true
+  description: "Robot for storing things"
+
+
+@listen type: "set value", local: true, ({data:{key, value}}, reply) ->
+  localStorage.setItem ("robots_" + key), JSON.stringify value
+  reply "ok"
+
+
+@listen type: "clear values", local: true, (_, reply) ->
+  localStorage.clear()
+  reply "ok"
+
+
+@listen type: "usercmd", local: true, ({data:cmd}, reply) ->
+  if match = cmd.match /reset$/
+    localStorage.clear()
+    reply "cleared storage"
+
+@listen type: "get value", local: true, ({data: key}, reply) ->
+  value = localStorage.getItem "robots_" + key
+  if value
+    reply "value is", JSON.parse value
+  else
+    reply "error", "no such value"

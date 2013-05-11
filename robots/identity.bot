@@ -6,11 +6,16 @@
 
 
 setUser = (name) =>
-  @transmit local:true, type:"user name", data:name
+  @transmit local: true, type: "user name", data: name
   @transmit "robot name", name
+  @transmit local: true, type: "set value", data: {key: 'nickname', value: name}
   @robot name
 
-@transmit {type:'name me', local: false}, ({data}) -> setUser data
+@transmit type: "get value", local: true, data: "nickname", ({type, data}) ->
+  if type is "error"
+    @transmit type:'name me', local: false, ({data}) -> setUser data
+  else
+    setUser data
 
 @listen 'usercmd', ({data:cmd}, reply) ->
   if match = cmd.match /nick\s+(.*)$/
