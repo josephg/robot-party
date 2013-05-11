@@ -3,15 +3,15 @@
 
 prefixes = [
 #  "Gol"
-	"Person"
-	"C-"
-	"R2-"
-	"K-"
-	"Evo"
-	"Blast"
-	"Percept"
-	"Sky"
-	"Quick"
+  "Person"
+  "C-"
+  "R2-"
+  "K-"
+  "Evo"
+  "Blast"
+  "Percept"
+  "Sky"
+  "Quick"
   "Gun"
   "Metal"
   "Iron"
@@ -19,20 +19,20 @@ prefixes = [
 ]
 
 suffixes = [
-	"-OS"
-	"oid"
-	"us"
-	"vac"
-	"plate"
-	"-D2"
-	"-3P0"
-	"droid"
-	"lock"
-	"dance"
-	"-XOR"
-	"plex"
-	"tron"
-	"bolt"
+  "-OS"
+  "oid"
+  "us"
+  "vac"
+  "plate"
+  "-D2"
+  "-3P0"
+  "droid"
+  "lock"
+  "dance"
+  "-XOR"
+  "plex"
+  "tron"
+  "bolt"
   "rider"
   "spin"
   "stream"
@@ -41,11 +41,11 @@ suffixes = [
 ]
 
 adjectives = [
-	"Mechanical"
-	"Cyborg"
-	"Zeta"
-	"Optimus"
-	"Alpha"
+  "Mechanical"
+  "Cyborg"
+  "Zeta"
+  "Optimus"
+  "Alpha"
   "Omega"
   "Galaxy"
   "Star"
@@ -53,25 +53,25 @@ adjectives = [
 ]
 
 end = [
-	"A7"
-	"matrix"
-	"the paranoid android"
-	"1000"
-	"2000"
-#	"Nova"
-	"Prime"
+  "A7"
+  "matrix"
+  "the paranoid android"
+  "1000"
+  "2000"
+#  "Nova"
+  "Prime"
   "Squad"
 ]
 
 randomInt = (n) -> Math.floor(Math.random() * n)
 randomElem = (list) -> list[randomInt(list.length)]
 gen = ->
-	name = randomElem(prefixes) + randomElem(suffixes)
-	name = name.replace "--", "-"
-	r = Math.random()
-	name = "#{randomElem adjectives} #{name}" if r < 0.2
-	name = "#{name} #{randomElem end}" if r > 0.85
-	name
+  name = randomElem(prefixes) + randomElem(suffixes)
+  name = name.replace "--", "-"
+  r = Math.random()
+  name = "#{randomElem adjectives} #{name}" if r < 0.2
+  name = "#{name} #{randomElem end}" if r > 0.85
+  name
 
 @listen 'name me', (data, reply) -> reply 'your name is', gen()
 

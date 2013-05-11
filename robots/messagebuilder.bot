@@ -64,6 +64,6 @@ me = undefined
 
   message = "
     <div class='source #{sourceclass} #{reclass}'>#{escapeHTML source}</div>
-  	<div class='text #{textclass} #{reclass}'>#{html or (nl2br escapeHTML text)}</div>
+    <div class='text #{textclass} #{reclass}'>#{html or (nl2br escapeHTML text)}</div>
   "
   @transmit type:"display message", user:user, data:{message, id, re}

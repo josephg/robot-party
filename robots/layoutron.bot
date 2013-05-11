@@ -28,7 +28,7 @@ sidebar.css position: 'absolute', top: 0, bottom: '2em', left: '80%', right: 0
     reply "layout", parent: '#textarea'
 
   if name is "sidebar"
-  	reply "layout", parent: "#sidebar"
+    reply "layout", parent: "#sidebar"
 
   else
     reply "layout", parent: "#mainarea"
