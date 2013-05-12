@@ -141,7 +141,7 @@ class Children extends Messenger
 
     catch e
       reply type: "error", data: {message: e.message, stack:e.stack, type:e.type, arguments:e.arguments}
-      console.log "error!", e
+      console.log "error!", e.message
       return
 
   sendRaw: (data) -> @distribute data, @parent
