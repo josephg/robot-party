@@ -2,20 +2,42 @@
   local: true
   description: "Input box."
 
+inputbox = $("<div id='inputbox' />")
 cmd = $("<textarea id='cmd' autofocus />")
+rebox = $("<div id='rebox' />")
 
 @transmit "add style", "
-  #cmd {
+  #inputbox {
     width: 100%;
-    height: 100%;
+    height: 2.4em;
     font-family: inherit;
     font-size: inherit;
+    display: table;
+  }
+  #cmd {
+    display: table-cell;
+    font-family: inherit;
+    font-size: inherit;
+    width: 100%;
+    height: 100%;
+  }
+  #rebox {
+    display: table-cell;
+    height: 100%;
+    width: 1px;
+    white-space: nowrap;
+    background-color: #55F;
+    vertical-align: middle;:
   }
 "
 
-@transmit "want layout", {id: 'cmd', name: "input"}, ({data:{parent}}) ->
+@transmit "want layout", {id: 'inputbox', name: "input"}, ({data:{parent}}) ->
+
+  $(parent).append inputbox
+  inputbox.append rebox
+  inputbox.append cmd
+  rebox.hide()
   
-  $(parent).append cmd
   cmd.keydown (ev) =>
     @transmit "key sent",
       key: ev.which,
@@ -25,6 +47,15 @@ cmd = $("<textarea id='cmd' autofocus />")
       shift: ev.shiftKey,
       
     ev.preventDefault() if ev.which is 13
+
+@listen "message clicked", ({data: id}) ->
+  if typeof id is 'string'
+    rebox.text "RE: #{id}"
+    rebox.show()
+  else
+    rebox.hide()
+
+  cmd.focus()
 
 @listen "get input", ({local, data}, reply) ->
   reply "input value", cmd.val()

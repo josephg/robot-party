@@ -23,16 +23,30 @@ container.append messages
 @transmit "want layout", {id: 'message-container', name: "messages"}, ({data:{parent}}) ->
   $(parent).append container
 
+  messages.on 'click', '.message', (ev) =>
+    if id = $(ev.currentTarget).attr 'id'
+      id = id.replace /^msg-/, ''
+      @transmit 'message clicked', id
+    else
+      @transmit 'message clicked'
+    ev.stopPropagation()
+
+  container.click (ev) =>
+    @transmit 'message clicked'
+
   @listen "display message", ({user, data: {message, id, re}}) ->
     scroll = (container.scrollTop() + container.height() == container[0].scrollHeight)
 
     id = if id then "msg-#{id}" else ""
     re = if re then "msg-#{re}" else ""
 
-    html = "<div id='#{id}' class='message'>#{message}</div>"
+    html = $("<div id='#{id}' class='message'>#{message}</div>")
 
-    if re and (reEl = $("#" + re)) and reEl.length
+    sel = "##{re}, ##{re} ~ [data-re=\"#{re}\"]"
+
+    if re and (reEl = $(sel).last()) and reEl.length
       console.log "appending after", re
+      html.attr 'data-re', re
       reEl.after html
     else
       messages.append html
