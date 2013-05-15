@@ -48,6 +48,6 @@ detailView = (robot) =>
   @transmit "get robot info", id, ({type, data: robot}) ->
     if type isnt "error"
       @transmit "set value", key: ("robocode_" + robot.name), value: code
-      @transmit to: robot.parent, type: "remove robot", trusted: true, local: false, data: id, ({type}) ->
+      @transmit to: robot.parent, type: "replace robot", trusted: true, local: false, data: {id, code}, ({type}) ->
         if type isnt "error"
-          @transmit to: robot.parent, type: "add robot", trusted: true, local: false, data: code
+          @transmit "robot saved", id

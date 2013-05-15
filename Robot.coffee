@@ -53,6 +53,9 @@ class Messenger
   unlisten: (id) ->
     delete @listeners[id]
 
+  unlistenAll: (id) ->
+    @listeners = {}
+
   ##
   # Transmit and listen are the next level up the communication stack.
   # They handle sending and receiving more structured data and have
@@ -180,6 +183,12 @@ defaultbot = ->
   @listen to: @id, trusted: true, type: "add robot", ({id: msgid, data: robocode}, reply) ->
     @children.add robocode, reply
 
+  @listen to: @id, trusted: true, type: "replace robot", ({id: msgid, data: {id, code}}, reply) ->
+    if robot = @children.get(id)
+      robot.replace code, reply
+    else
+      reply type: "error", local: false, data: "no such robot"
+
   @listen to: @id, trusted: true, type: "remove robot", ({id: msgid, data: id}, reply) ->
     @children.remove id, reply
 
@@ -190,21 +199,32 @@ class Robot extends Messenger
 
     [@code, @parent] = [@parent] unless @code?
     @children = new Children this
+    @id = randomId()
+
+    @_init @code
+
+  _init: (code) ->
     @defaults = {}
     @info = {}
-    @id = randomId()
     @bridge on
 
-    if typeof @code is 'string'
-      @fn = eval "(function(){" + coffeescript.compile(@code, bare: true) + "})"
+    if typeof code is 'string'
+      @fn = eval "(function(){" + coffeescript.compile(code, bare: true) + "})"
     else
-      [@fn, @code] = [@code]
+      [@fn, @code] = [code]
 
     #console.warn "about to apply code", @fn
     @fn.apply this
 
     unless @info?.eunuch
       defaultbot.apply this
+
+  replace: (code, reply) ->
+    reply ||= (args...) => @parent.transmit args...
+    @cleanup()
+    @_init code
+
+    reply type: "robot replaced", local: false, data: { id: @id, name: @name, info: @info }
 
   # Robot directive specifies a robot's details
   # We use this to respond to robot info requests and to set useful defaults
@@ -244,11 +264,15 @@ class Robot extends Messenger
   # SendRaw sends data to children and siblings, if available
   sendRaw: (data) ->
     @distribute data, this
+
+  cleanup: ->
+    @onCleanup?()
+    @unlistenAll()
   
   # Deactivate myself and children
   remove: ->
+    @cleanup()
     @children.each (child) -> child.remove()
-    @listeners = {}
     @parent = null
 
 if window?

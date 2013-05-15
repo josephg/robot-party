@@ -4,7 +4,6 @@
 
 me = this
 
-
 @listen "edit robot", ({data:{text, title, id}}) ->
   dialog = $("<div>")
 

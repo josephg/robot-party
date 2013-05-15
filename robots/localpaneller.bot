@@ -13,9 +13,12 @@ target = '#localpanel'
   }
 "
 
+rootId = null
+
 #Robotracker might not be ready yet
 setTimeout =>
   @transmit "query robots", {info: {root: true}}, ({data: [root]}) ->
+    rootId = root.id
     
     query = {parent: root.id}
 
@@ -32,8 +35,12 @@ setTimeout =>
       @transmit "unrender robots", target: target, robots: data.robots
 
 
+, 100
+
+# This should use some kind of events fired by layoutron
+setTimeout =>
   $(target).droppable drop: (ev, ui) =>
     data = ui.draggable.data()
-    console.log "got drop for id", data.eid, "hub", data.parent, "desthub", localHub
-    @transmit "copy robot", fromhub: data.parent, tohub: localHub, id: data.eid
-, 100
+    console.log "got drop for id", data.eid, "hub", data.parent, "desthub", rootId
+    @transmit "copy robot", from: data.parent, to: rootId, id: data.eid
+, 1000
