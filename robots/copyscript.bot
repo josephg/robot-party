@@ -2,9 +2,9 @@
   local: true
   description: "Copies a robot from one place to another."
 
-@listen local: true, type: "copy robot", ({data: {fromhub, tohub, id}}, reqreply) ->
-  @transmit type: "get robot", local: false, to: fromhub, data: id, ({data: code}) ->
-    @transmit type: "add robot", trusted: true, to: tohub, data: code, ({type, newid}) ->
+@listen local: true, type: "copy robot", ({data: {from, to, id}}, reqreply) ->
+  @transmit type: "get robot", local: false, to: from, data: id, ({data: code}) ->
+    @transmit type: "add robot", trusted: true, to: to, data: code, ({type, newid}) ->
       if type is "error"
         reqreply "error", newid
       else
