@@ -7,6 +7,11 @@
   @transmit "get robot info", id, ({type, data: robot}) ->
     detailView robot if type isnt "error"
 
+@listen type: 'message clicked', local: true, ({data: {from: id}}) ->
+  return unless id
+  @transmit "get robot info", id, ({type, data: robot}) ->
+    detailView robot if type isnt "error"
+
 @transmit "add style", "
   #detailpanel {
     width: 100%;

@@ -98,7 +98,7 @@ json2html = (obj) ->
   return if msg.type == "display message"
   return if (ignores[msg.type] or msg.local) and !deluge
   
-  from = (x for x in [msg.user, msg.robot] when x?).join(" + ") || "anonybot"
+  source = (x for x in [msg.user, msg.robot] when x?).join(" + ") || "anonybot"
   sourceclass = "local" if msg.local
 
 
@@ -106,9 +106,10 @@ json2html = (obj) ->
 
   @transmit type: "build message", user: msg.user, data:
     id: msg.id,
+    from: msg.from,
     re: msg.re,
     sourceclass: sourceclass,
-    source: from,
+    source: source,
     textclass: 'json',
     html: msg2html msg
 

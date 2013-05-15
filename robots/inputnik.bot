@@ -25,8 +25,10 @@ rebox = $("<div id='rebox' />")
     display: table-cell;
     height: 100%;
     width: 1px;
+    max-width: 150em;
     white-space: nowrap;
     background-color: #55F;
+    color: #ccc;
     vertical-align: middle;:
   }
 "
@@ -48,9 +50,9 @@ rebox = $("<div id='rebox' />")
       
     ev.preventDefault() if ev.which is 13
 
-@listen "message clicked", ({data: id}) ->
+@listen "message clicked", ({data: {id, source}}) ->
   if typeof id is 'string'
-    rebox.text "RE: #{id}"
+    rebox.text "RE: #{source}"
     rebox.show()
   else
     rebox.hide()

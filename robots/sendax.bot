@@ -4,7 +4,7 @@
 
 re = null
 
-@listen "message clicked", ({data: id}) ->
+@listen "message clicked", ({data: {id}}) ->
   if typeof id is 'string'
     re = id
   else

@@ -23,30 +23,39 @@ container.append messages
 @transmit "want layout", {id: 'message-container', name: "messages"}, ({data:{parent}}) ->
   $(parent).append container
 
-  messages.on 'click', '.message', (ev) =>
-    if id = $(ev.currentTarget).attr 'id'
+  messages.on 'click', '.source', (ev) =>
+    return if window.getSelection?()?.isCollapsed is false
+
+    message = $(ev.currentTarget).parents('.message')
+    id = message.attr 'id'
+    data = message.data()
+
+    if id
       id = id.replace /^msg-/, ''
-      @transmit 'message clicked', id
+      source = message.children('.source').text()
+      @transmit 'message clicked', {id, source, from: data.from}
     else
       @transmit 'message clicked'
     ev.stopPropagation()
 
-  container.click (ev) =>
-    @transmit 'message clicked'
+  container.on 'click', (ev) =>
+    @transmit 'message clicked' unless window.getSelection?()?.isCollapsed is false
 
-  @listen "display message", ({user, data: {message, id, re}}) ->
+  @listen "display message", ({user, data: {message, id, re, from}}) ->
     scroll = (container.scrollTop() + container.height() == container[0].scrollHeight)
 
     id = if id then "msg-#{id}" else ""
     re = if re then "msg-#{re}" else ""
 
     html = $("<div id='#{id}' class='message'>#{message}</div>")
+    html.attr 'data-from', from
 
     sel = "##{re}, ##{re} ~ [data-re=\"#{re}\"]"
 
     if re and (reEl = $(sel).last()) and reEl.length
       console.log "appending after", re
       html.attr 'data-re', re
+      html.addClass 're'
       reEl.after html
     else
       messages.append html
