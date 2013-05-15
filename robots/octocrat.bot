@@ -1,0 +1,15 @@
+@robot 'octocrat',
+  description: 'web hook for github'
+
+express = require 'express'
+
+app = express()
+
+app.use express.bodyParser()
+
+app.post '/hook', (req, res) =>
+  res.send 200
+
+  @transmit "github hook", req.body?.payload
+  
+app.listen 5309
