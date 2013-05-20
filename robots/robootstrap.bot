@@ -1,0 +1,13 @@
+@robot 'robootstrap',
+  local: true
+  version: '0.0.0'
+  description: "Robot bootstrapper"
+
+console.log "bootstrapped balls 3?"
+
+@transmit 'get value', "bootstrapped balls", ({type, data}) ->
+  if type is 'error'
+    $.ajax 'bootstrap.json', success: (data) =>
+      for k, code of data
+        @transmit "store robot", code: code
+      @transmit 'set value', key: "bootstrapped", value: true

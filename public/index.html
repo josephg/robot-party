@@ -25,8 +25,19 @@
   </head>
   <body>
     <script type="text/coffeescript">
-      $.ajax url: "client.bot", success: (data) ->
-        robot = new Robot data
+      levelup = window.indexedup
+
+      levelup './robots', createIfMissing: true, (err, db) ->
+        throw err if err
+        db.get "robot_client_current", (err, data) =>
+          if err
+            $.ajax "robots/client.bot", success: woot
+          else
+            woot JSON.parse(data).code
+
+      woot = (code) ->
+        robot = new Robot code
+
     </script>
   </body>
 </html>

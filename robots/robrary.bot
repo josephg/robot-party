@@ -1,12 +1,11 @@
 @robot 'robrary',
   local: true
+  version: "0.0.0"
   description: "Robo library"
 
 qw = (s) -> s.split(" ")
 
 coffeescript = window?.CoffeeScript or require 'coffee-script'
-
-robots = {}
 
 makeVer = (str) ->
   ver = str.split('.')
@@ -26,11 +25,12 @@ store = (robodata, cb) =>
   @transmit "create value", {key: "robot_#{name}_#{version}", value: robodata}, ({type, data}) ->
     return cb "robot already exists at that version" if type is "error"
     @transmit "get value", "robot_#{name}_current", ({type, data}) ->
-      if !data.version or versionGreater data.version, version
+      if !data.version or versionGreater version, data.version
         @transmit "set value", key: "robot_#{name}_current", value: robodata
 
 getInfo = (code) =>
   class Info extends Error
+    constructor: -> super()
   info = null
   roboinfo = (name, _info) -> info = _info; info.name = name; throw new Info()
 
@@ -41,13 +41,13 @@ getInfo = (code) =>
     if e instanceof Info
       return info
     else
+      console.log "e", e, "instanceof Info", e instanceof Info
       return e
 
 
 storeRobot = ({data}, reply) ->
   info = getInfo data.code
   info.code = data.code
-  console.log "total info", info
   return reply "error", info.message if info instanceof Error
   return reply "error", "robot doesn't have a name" unless info.name
   return reply "error", "robot doesn't have a version" unless info.version

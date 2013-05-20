@@ -1,5 +1,6 @@
 @robot 'd-tail',
   local: true
+  version: '0.0.0'
   description: 'Detail view for robots, including list of children and edit/stop buttons.'
 
 
@@ -52,7 +53,6 @@ detailView = (robot) =>
 @listen "editbox saved", (data:{id, text: code}) ->
   @transmit "get robot info", id, ({type, data: robot}) ->
     if type isnt "error"
-      @transmit "set value", key: ("robocode_" + robot.name), value: code
       @transmit to: robot.parent, type: "replace robot", trusted: true, local: false, data: {id, code}, ({type}) ->
         if type isnt "error"
           @transmit "robot saved", id

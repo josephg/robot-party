@@ -1,0 +1,81 @@
+@robot 'client',
+  version: '0.0.0'
+  root: true
+
+within = (name, cb, parent) =>
+  load name, (robot) ->
+    ctx =
+      load: (name, cb) -> load name, cb, robot
+      within: (name, cb) -> within name, cb, robot
+    console.log "context", ctx
+    cb?.call ctx, robot
+  , parent
+
+
+levelup = window?.indexedup
+
+bootstrapLoad = (name, cb) =>
+  console.log "bootstraploading", name
+  levelup './robots', createIfMissing: true, (err, db) =>
+    throw err if err
+    db.get "robot_#{name}_current", (err, data) =>
+      woot = (code) =>
+        robot = @children.add code
+        cb? robot.id if robot
+      if err
+        $.ajax "robots/#{name}.bot", success: woot          
+      else
+        woot JSON.parse(data).code
+
+load = (name, cb, parent) =>
+  @children.transmit type: "load robot", data: name, local: true, ({type, data: robot}) =>
+    if type is "error"
+      console.warn "error", robot.message
+    else if parent
+      @children.transmit to: parent, type: "add robot", data: robot, trusted: true, ({type, data}) ->
+        if type isnt "error"
+          cb? data.id
+    else
+      #console.log "robot is", robot
+      robot = @children.add robot
+      cb? robot.id if robot
+
+me = this
+
+@listen type: "user name", local: true, ({data:name}) ->
+  me.transmit "robot name", name+'-client'
+  me.robot name+"-client"
+
+
+bootstrapLoad 'print', ->
+  bootstrapLoad 'persistron', ->
+    bootstrapLoad 'robrary', ->
+      bootstrapLoad 'robootstrap', ->
+        loadBots()
+
+loadBots = =>
+  load 'evalor'
+  within 'netwerk', ->
+    @load 'cryptonominom'
+    @load 'federatron', ->
+      me.transmit local: true, type: 'federate'
+  load 'layoutron', ->  
+    load 'robotracker', ->
+      within 'displayinator', ->
+        @load 'jsonformatic'
+        @load 'chatformatic'
+        @load 'nickformatic'
+        @load 'messagebuilder'
+        within 'identity', (id) ->
+          @load 'sendax'
+          @load 'iTransmitForTheUsers'
+        load 'editro'
+        load 'inputnik'
+        load 'historinox'
+        load 'accordy1'
+        load 'roborenderer'
+        load 'd-tail'
+        load 'copyscript'
+        load 'localpaneller'
+        load 'mainpaneller'
+

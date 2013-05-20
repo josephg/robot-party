@@ -2,9 +2,22 @@
   local: true
   description: "Serves web interface and listens for browserchannel connections."
 
-connect = require 'connect'
+express = require 'express'
 sockjs = require 'sockjs'
-app = connect(connect.static(__dirname + '/public'))
+app = express()
+
+app.use express.static(__dirname + '/public')
+
+# Should pull this out into bootstrap server bot that registers itself with us somehow
+
+fs = require 'fs'
+qw = (x) -> x.split /\s+/
+
+app.get '/bootstrap.json', (req, res) ->
+  robots = {}
+  for bot in qw "persistron robrary robootstrap print evalor netwerk cryptonominom federatron layoutron robotracker displayinator jsonformatic chatformatic nickformatic messagebuilder identity sendax iTransmitForTheUsers editro inputnik historinox accordy1 roborenderer d-tail copyscript localpaneller mainpaneller"
+    robots[bot] = fs.readFileSync("robots/#{bot}.bot", "utf-8")
+  res.send robots
 
 opts = sockjs_url: "http://cdn.sockjs.org/sockjs-0.3.min.js"
 
@@ -29,9 +42,11 @@ sock.on 'connection', (client) =>
     # Remove the client from the client list
     clients = (c for c in clients when c != client)
 
-sock.installHandlers app, prefix: '/sock'
+server = require('http').createServer(app)
 
-app.listen 4321
+sock.installHandlers server, prefix: '/sock'
+
+server.listen 4321
 
 # Proxy incoming messages from other network channels
 @listen 'incoming message', ({data: msg}) ->
