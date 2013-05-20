@@ -169,7 +169,7 @@ defaultbot = ->
     myrobots.push {@id, @name, @info} if @info.root
 
     if myrobots.length > 0
-      reply type: "I have robots", local: false, data: myrobots 
+      reply type: "I have robots", local: false, data: myrobots
 
   @listen "list robots", list
   #@children.listen "list robots", list

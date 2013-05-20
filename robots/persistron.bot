@@ -3,6 +3,13 @@
   description: "Robot for storing things"
 
 
+@listen type: "create value", local: true, ({data:{key, value}}, reply) ->
+  if localStorage.getItem ("robots_" + key)
+    reply "error", "value already exists"
+  else
+    localStorage.setItem ("robots_" + key), JSON.stringify value
+    reply "ok"
+
 @listen type: "set value", local: true, ({data:{key, value}}, reply) ->
   localStorage.setItem ("robots_" + key), JSON.stringify value
   reply "ok"

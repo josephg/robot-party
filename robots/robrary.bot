@@ -1,0 +1,78 @@
+@robot 'robrary',
+  local: true
+  description: "Robo library"
+
+qw = (s) -> s.split(" ")
+
+coffeescript = window?.CoffeeScript or require 'coffee-script'
+
+robots = {}
+
+makeVer = (str) ->
+  ver = str.split('.')
+  ver.length = 3
+  parseInt(v) or 0 for v, i in ver
+
+
+versionGreater = (a, b) ->
+  [a, b] = [makeVer(a), makeVer(b)]
+
+  for i in [0..2]
+    return a[i] > b[i] if a[i] != b[i]
+  return false
+
+store = (robodata, cb) =>
+  {name, version} = robodata
+  @transmit "create value", {key: "robot_#{name}_#{version}", value: robodata}, ({type, data}) ->
+    return cb "robot already exists at that version" if type is "error"
+    @transmit "get value", "robot_#{name}_current", ({type, data}) ->
+      if !data.version or versionGreater data.version, version
+        @transmit "set value", key: "robot_#{name}_current", value: robodata
+
+getInfo = (code) =>
+  class Info extends Error
+  info = null
+  roboinfo = (name, _info) -> info = _info; info.name = name; throw new Info()
+
+  try
+    fn = eval "(function(){" + coffeescript.compile(code, bare: true) + "})"
+    fn.apply {robot: roboinfo}
+  catch e
+    if e instanceof Info
+      return info
+    else
+      return e
+
+
+storeRobot = ({data}, reply) ->
+  info = getInfo data.code
+  info.code = data.code
+  console.log "total info", info
+  return reply "error", info.message if info instanceof Error
+  return reply "error", "robot doesn't have a name" unless info.name
+  return reply "error", "robot doesn't have a version" unless info.version
+
+  store info, (err) ->
+    if err
+      reply "error", err
+    else
+      reply "robot stored"
+
+@listen type: "store robot", to: @id, trusted: true, storeRobot
+@listen type: "store robot", local: true, storeRobot
+
+getRobot = ({data}, reply) =>
+  if typeof data is 'string'
+    name = data
+  else
+    {name, version} = data
+  version ||= 'current'
+
+  @transmit "get value", "robot_#{name}_#{version}", ({type, data}) ->
+    if type is "error"
+      reply "error", "couldn't fetch robot"
+    else
+      reply "robocode", data.code
+
+@listen type: "load robot", local: true, getRobot
+@listen type: "load robot", to: @id, getRobot

@@ -17,6 +17,8 @@ me = this
       buttons:
         save: ->
           me.transmit "editbox saved", {title, id, text: editor.getSession().getValue()}
+        "store in library": ->
+          me.transmit type: "store robot", trusted: true, data: code: editor.getSession().getValue()
     )
 
     editor = ace.edit dialog[0]
