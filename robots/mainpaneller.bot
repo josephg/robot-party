@@ -1,5 +1,6 @@
 @robot "mainpaneller",
   local: true
+  version: '0.0.0'
   description: "Panel of main (ie non-local-only) robots."
 
 query = {info: {local: '{falsy}'}}

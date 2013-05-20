@@ -1,5 +1,6 @@
 @robot 'federatron',
   local: true
+  version: '0.0.0'
   description: "Connects us to another network that listens on sockjs."
 
 WS = window?.SockJS or require('ws')

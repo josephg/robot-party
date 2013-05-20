@@ -1,5 +1,6 @@
 @robot 'roborenderer',
   local: true
+  version: '0.0.0'
   description: 'Renders a visual representation of a robot or robots'
 
 escapeHTML = (html) -> $('<div/>').text(html).html() if html?

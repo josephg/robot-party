@@ -1,5 +1,6 @@
 @robot "layoutron",
   local: true
+  version: '0.0.0'
   description: "Top-level layout robot. Decides where other display robots go."
 
 $('body').css 'font-family': "'Ubuntu Mono', monospace"

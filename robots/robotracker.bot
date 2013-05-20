@@ -1,5 +1,6 @@
 @robot 'robotracker',
   local: true
+  version: '0.0.0'
   description: "Theoretically centrally tracks robots currently on the network. Actually does nothing useful."
 
 robots = {}

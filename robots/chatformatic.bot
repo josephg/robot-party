@@ -1,5 +1,6 @@
 @robot 'chatformatic',
   local: true
+  version: '0.0.0'
   description: "Formats chat messages."
 
 escapeHTML = (html) -> $('<div/>').text(html).html() if html?

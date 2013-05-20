@@ -1,5 +1,6 @@
 @robot 'editro',
   local: true
+  version: '0.0.0'
   description: "Robot editing robot."
 
 me = this

@@ -1,5 +1,6 @@
 @robot 'netwerk',
   local: true
+  version: '0.0.0'
   description: "Wraps network-related robots so they can process messages before the messages enter general circulation."
 
 messages = {}

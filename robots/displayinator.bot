@@ -1,5 +1,6 @@
 @robot "displayinator",
   local: true
+  version: '0.0.0'
   description: "Main message window."
 
 container = $("<div id='message-container' />")

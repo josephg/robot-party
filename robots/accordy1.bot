@@ -1,5 +1,6 @@
 @robot "accordy1",
   local: true
+  version: '0.0.0'
   description: "Vertically partitioned sidebar."
 
 me = this

@@ -1,5 +1,6 @@
 @robot "historinox",
   local: true
+  version: '0.0.0'
   description: "Edit box history with up/down keys."
 
 hist = []

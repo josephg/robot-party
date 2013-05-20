@@ -1,5 +1,6 @@
 @robot "copyscript",
   local: true
+  version: '0.0.0'
   description: "Copies a robot from one place to another."
 
 @listen local: true, type: "copy robot", ({data: {from, to, id}}, reqreply) ->

@@ -1,5 +1,6 @@
 @robot 'cryptonominom',
   local: true
+  version: '0.0.0'
   description: "Wraps outgoing and unwraps incoming messages with RSA signatures."
 
 privateKey = """

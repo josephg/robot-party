@@ -1,5 +1,6 @@
 @robot 'printbot',
   local: true
+  version: '0.0.0'
   description: "Console logs whatever it sees."
 
 @listen (data) -> console.log data.type, data

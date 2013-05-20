@@ -1,5 +1,6 @@
 @robot "localpaneller",
   local: true
+  version: '0.0.0'
   description: "Panel of robots attached to your root hub."
 
 

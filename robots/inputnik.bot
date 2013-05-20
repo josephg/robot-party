@@ -1,5 +1,6 @@
 @robot "inputnik",
   local: true
+  version: '0.0.0'
   description: "Input box."
 
 inputbox = $("<div id='inputbox' />")
