@@ -175,7 +175,10 @@ defaultbot = ->
   #@children.listen "list robots", list
 
   @listen to: @id, type: "get robot", ({data: id}, reply) ->
-    if @children.get(id)?.code?
+    # Should make this work properly for the other robot methods"
+    if @info.root and id is @id
+      reply type: "code for robot", local: false, data: @code
+    else if @children.get(id)?.code?
       reply type: "code for robot", local: false, data: @children.get(id).code
     else
       reply type: "error", local: false, data: "no such robot"
